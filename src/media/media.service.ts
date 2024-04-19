@@ -37,17 +37,19 @@ export class MediaService {
 
   async createFileMedia(
     file: ITransformedFile,
+    entityId: string,
     queryRunner: QueryRunner,
-    postId: string,
+    entityColumn: string,
   ) {
     const media = new MediaEntity();
     media.originalName = file.originalName;
     media.fileName = file.fileName;
     media.filePath = file.filePath;
     media.mimeType = file.mimeType;
+    media[entityColumn] = entityId;
     media.size = file.size;
     await queryRunner.manager.save(MediaEntity, media);
-    return { mediaId: media.id };
+    return media.id;
   }
 
   async deleteMedias(fileIds: string[], queryRunner: QueryRunner) {

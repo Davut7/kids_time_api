@@ -1,27 +1,23 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../helpers/entities/baseEntity.entity';
 import { AdminTokenEntity } from '../../token/entities/token.entity';
-import {
-  IsNotEmpty,
-  IsString,
-  IsStrongPassword,
-} from 'class-validator';
+import { IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity({ name: 'admin_users' })
 export class AdminUserEntity extends BaseEntity {
   @ApiProperty({
-    title: 'name',
-    name: 'name',
+    title: 'firstName',
+    name: 'firstName',
     type: String,
-    description: 'User name',
+    description: 'User first name',
     required: true,
     example: 'David',
   })
   @IsNotEmpty()
   @IsString()
   @Column({ type: 'text', nullable: false })
-  name: string;
+  firstName: string;
 
   @ApiProperty({
     title: 'password',

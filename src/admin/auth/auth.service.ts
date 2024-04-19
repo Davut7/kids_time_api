@@ -21,15 +21,18 @@ export class AdminAuthService {
 
   async loginUser(dto: LoginDto) {
     const user = await this.userRepository.findOne({
-      where: { name: dto.name },
+      where: { firstName: dto.firstName },
     });
-    if (!user) throw new NotFoundException(`User with ${dto.name} not found!`);
+    if (!user)
+      throw new NotFoundException(`User with ${dto.firstName} not found!`);
 
     const isPasswordValid = await compare(dto.password, user.password);
     if (!isPasswordValid)
       throw new BadRequestException(`User password incorrect!`);
 
-    const tokens = this.tokenService.generateTokens({ ...new AdminTokenDto(user) });
+    const tokens = this.tokenService.generateTokens({
+      ...new AdminTokenDto(user),
+    });
 
     await this.tokenService.saveTokens(user.id, tokens.refreshToken);
 
@@ -56,7 +59,9 @@ export class AdminAuthService {
     const user = await this.userRepository.findOne({
       where: { id: validToken.id },
     });
-    const tokens = this.tokenService.generateTokens({ ...new AdminTokenDto(user) });
+    const tokens = this.tokenService.generateTokens({
+      ...new AdminTokenDto(user),
+    });
     await this.tokenService.saveTokens(user.id, tokens.refreshToken);
     return {
       ...tokens,

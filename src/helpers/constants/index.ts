@@ -1,5 +1,4 @@
-export * from './property/propertyTypeEnum';
-export * from './property/saleTypeEnum';
 export * from './orderEnum';
-export * from './userLanguageEnum';
+export * from './languageEnum';
 export * from './users/roleEnum';
+export * from './categoryType.enum';

@@ -17,6 +17,7 @@ import { MediaModule } from './media/media.module';
 import { RedisModule } from './redis/redis.module';
 import { AdminUserService } from './admin/user/user.service';
 import { CreateUserDto } from './admin/user/dto/createUser.dto';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { CreateUserDto } from './admin/user/dto/createUser.dto';
     SharedModule,
     MediaModule,
     RedisModule,
+    CategoryModule,
   ],
   providers: [
     {
@@ -61,10 +63,11 @@ export class AppModule implements OnModuleInit {
   }
   async onModuleInit() {
     const user: CreateUserDto = {
-      name: 'admin',
+      firstName: 'admin',
       password: 'Admin123!',
     };
-    if (!(await this.adminUserService.isAdminUserExists(user.name))) {
+    const users = await this.adminUserService.isAdminUserExists();
+    if (users.length <= 0) {
       await this.adminUserService.createUser(user);
     } else {
       return console.log('Default admin user already exists');

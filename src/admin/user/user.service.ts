@@ -17,25 +17,20 @@ export class AdminUserService {
     private userRepository: Repository<AdminUserEntity>,
   ) {}
 
-  async isAdminUserExists(name: string) {
-    const user = await this.userRepository.findOne({
-      where: {
-        name,
-      },
-    });
-    if (!user) {
-      return console.log('Default admin user not found');
-    }
+  async isAdminUserExists() {
+    const user = await this.userRepository.find();
     return user;
   }
 
   async createUser(dto: CreateUserDto) {
     const existingUser = await this.userRepository.findOne({
-      where: { name: dto.name },
+      where: { firstName: dto.firstName },
     });
 
     if (existingUser)
-      throw new ConflictException(`User with name ${dto.name} already exists!`);
+      throw new ConflictException(
+        `User with firstName ${dto.firstName} already exists!`,
+      );
 
     const hashedPassword = await hash(dto.password, 10);
     dto.password = hashedPassword;
@@ -50,7 +45,7 @@ export class AdminUserService {
 
   async getAllUsers() {
     const [users, count] = await this.userRepository.findAndCount({
-      select: ['id', 'name', 'updatedAt', 'updatedAt'],
+      select: ['id', 'firstName', 'updatedAt', 'updatedAt'],
     });
 
     return {
@@ -63,7 +58,7 @@ export class AdminUserService {
   async findUserById(userId: string) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      select: ['id', 'name', 'createdAt', 'updatedAt'],
+      select: ['id', 'firstName', 'createdAt', 'updatedAt'],
     });
     if (!user) throw new NotFoundException(`User with id ${userId} not found`);
     return user;
@@ -81,7 +76,7 @@ export class AdminUserService {
     return {
       message: 'User updated successfully!',
       id: user.id,
-      name: user.name,
+      firstName: user.firstName,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

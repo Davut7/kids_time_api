@@ -122,8 +122,8 @@ export class AdminAuthController {
   @Post('logout')
   async logout(@Req() req, @Res() res) {
     const refreshToken = req.cookies['refreshToken'];
-    const accessToken = req.headers.authorization.split(' ')[1];
-    console.log(accessToken);
+    const headers = req.headers;
+    const accessToken = headers.authorization.split(' ')[1];
     await this.redisService.setTokenWithExpiry(accessToken, accessToken);
     await this.authService.logoutUser(refreshToken);
     res.clearCookie('refreshToken');

@@ -17,6 +17,7 @@ export function imageFilter(req, file, cb) {
       file.originalname.split('.')[file.originalname.split('.').length - 1],
     )
   ) {
+    
     cb(new UnsupportedMediaTypeException('Invalid file extension.'), false);
     return;
   }

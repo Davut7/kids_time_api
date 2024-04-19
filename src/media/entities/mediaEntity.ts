@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, ManyToOne } from 'typeorm';
 import { BaseEntity } from 'src/helpers/entities/baseEntity.entity';
+import { CategoryEntity } from 'src/category/entities/category.entity';
 
 @Entity({ name: 'medias' })
 export class MediaEntity extends BaseEntity {
@@ -29,4 +30,10 @@ export class MediaEntity extends BaseEntity {
   })
   @Column({ nullable: false })
   originalName: string;
+
+  @Column({ type: 'uuid', nullable: true })
+  categoryId: string;
+
+  @ManyToOne(() => CategoryEntity, (category) => category.medias)
+  category:CategoryEntity
 }

@@ -7,7 +7,7 @@ import {
   IsIn,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { OrderType, UserLanguageEnum } from 'src/helpers/constants';
+import { OrderType, LanguageEnum } from 'src/helpers/constants';
 
 export class PageOptionsDto {
   @IsEnum(OrderType)
@@ -33,6 +33,6 @@ export class PageOptionsDto {
   readonly q?: string;
 
   @IsOptional()
-  @IsEnum(UserLanguageEnum)
-  readonly lng: UserLanguageEnum;
+  @IsEnum(LanguageEnum)
+  readonly lng: LanguageEnum;
 }
