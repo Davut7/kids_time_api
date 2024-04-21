@@ -1,7 +1,6 @@
 import { MiddlewareConsumer, Module, OnModuleInit } from '@nestjs/common';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { AllExceptionsFilter } from './utils/core/allException.filter';
-import { MinioService } from './minio/minio.service';
 import { LogsMiddleware } from './logger/middleware/logs.middleware';
 import DatabaseLogger from './logger/helpers/databaseLogger';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -12,7 +11,6 @@ import { AdminAuthModule } from './admin/auth/auth.module';
 import { AdminTokenModule } from './admin/token/token.module';
 import { AdminUserModule } from './admin/user/user.module';
 import { MailsModule } from './mails/mails.module';
-import { SharedModule } from './shared/shared.module';
 import { MediaModule } from './media/media.module';
 import { RedisModule } from './redis/redis.module';
 import { AdminUserService } from './admin/user/user.service';
@@ -26,6 +24,8 @@ import { MinioModule } from './minio/minio.module';
 import { DrawingsModule } from './drawings/drawings.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { validate } from './config/env.validation';
+import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
   imports: [
@@ -51,6 +51,19 @@ import { validate } from './config/env.validation';
         logger: new DatabaseLogger(),
       }),
     }),
+    CacheModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        isGlobal: true,
+        store: redisStore,
+        ttl: 60,
+        host: configService.getOrThrow<string>('REDIS_HOST'),
+        port: configService.getOrThrow<number>('REDIS_PORT'),
+        username: configService.getOrThrow<string>('REDIS_USERNAME'),
+        password: configService.getOrThrow<string>('REDIS_PASSWORD'),
+        no_ready_check: true,
+      }),
+    }),
     TerminusModule.forRoot(),
     LoggerModule,
     // HealthModule,
@@ -58,7 +71,6 @@ import { validate } from './config/env.validation';
     AdminTokenModule,
     AdminUserModule,
     MailsModule,
-    SharedModule,
     MediaModule,
     MinioModule,
     RedisModule,
@@ -74,6 +86,10 @@ import { validate } from './config/env.validation';
     {
       provide: APP_FILTER,
       useClass: AllExceptionsFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor,
     },
   ],
 })

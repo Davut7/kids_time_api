@@ -46,6 +46,14 @@ class EnvironmentVariables {
 
   @IsString()
   @IsNotEmpty()
+  REDIS_USERNAME: string;
+
+  @IsString()
+  @IsNotEmpty()
+  REDIS_PASSWORD: string;
+
+  @IsString()
+  @IsNotEmpty()
   MINIO_ENDPOINT: string;
 
   @IsString()

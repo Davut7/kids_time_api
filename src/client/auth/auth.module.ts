@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SharedModule } from 'src/shared/shared.module';
 import { UserEntity } from '../user/entities/user.entity';
 import { TokenEntity } from '../token/entities/token.entity';
 import { TokenModule } from '../token/token.module';
@@ -11,15 +10,16 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { UserModule } from '../user/user.module';
 import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserEntity, TokenEntity]),
-    SharedModule,
     TokenModule,
     MailsModule,
     UserModule,
     PassportModule,
+    RedisModule,
     ThrottlerModule.forRoot([
       {
         name: 'resend-code',

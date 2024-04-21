@@ -9,6 +9,7 @@ import * as Sentry from '@sentry/node';
 import { SentryFilter } from './helpers/filters/sentry.filter';
 import CustomLogger from './logger/helpers/customLogger';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { TimeoutInterceptor } from './helpers/interceptors/timout.interceptor';
 
 async function bootstrap() {
   const port = process.env.PORT;
@@ -45,9 +46,10 @@ async function bootstrap() {
   Sentry.init({
     dsn: process.env.SENTRY_DNS,
   });
-  // const { httpAdapter } = app.get(HttpAdapterHost);
-  // app.useGlobalFilters(new SentryFilter(httpAdapter));
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector)),
+    new TimeoutInterceptor(),
+  );
   app.setGlobalPrefix('api');
   await app.listen(port, () => {
     console.log(`Your server is listening on port ${port}`);
