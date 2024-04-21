@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -10,6 +11,7 @@ import { hash } from 'bcrypt';
 import { CreateUserDto } from './dto/createUser.dto';
 import { AdminUserEntity } from './entities/adminUser.entity';
 import { AdminTokenDto } from '../token/dto/token.dto';
+import { GetUsersQuery } from './dto/getUsers.query';
 @Injectable()
 export class AdminUserService {
   constructor(
@@ -43,10 +45,15 @@ export class AdminUserService {
     };
   }
 
-  async getAllUsers() {
-    const [users, count] = await this.userRepository.findAndCount({
-      select: ['id', 'firstName', 'updatedAt', 'updatedAt'],
-    });
+  async getAllUsers(query?: GetUsersQuery) {
+    const { take = 10, page = 1, q = '' } = query;
+
+    const [users, count] = await this.userRepository
+      .createQueryBuilder('users')
+      .take(take)
+      .skip((page - 1) * take)
+      .where('users.firstName ILIKE :q ', { q: `%${q}%` })
+      .getManyAndCount();
 
     return {
       message: 'User returned successfully',
@@ -58,7 +65,6 @@ export class AdminUserService {
   async findUserById(userId: string) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      select: ['id', 'firstName', 'createdAt', 'updatedAt'],
     });
     if (!user) throw new NotFoundException(`User with id ${userId} not found`);
     return user;
@@ -82,7 +88,9 @@ export class AdminUserService {
     };
   }
 
-  async deleteUserById(userId: string) {
+  async deleteUserById(currentUserId: string, userId: string) {
+    if (currentUserId === userId)
+      throw new BadRequestException('You cannot delete yourself!');
     const user = await this.findUserById(userId);
 
     await this.userRepository.delete(user.id);
@@ -95,7 +103,8 @@ export class AdminUserService {
     const user = await this.userRepository.findOne({
       where: { id: currentUser.id },
     });
-
+    if (!user)
+      throw new NotFoundException('User not found, maybe account deleted');
     return user;
   }
 }

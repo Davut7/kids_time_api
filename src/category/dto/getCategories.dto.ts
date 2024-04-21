@@ -6,6 +6,6 @@ export class GetCategoriesQuery extends PickType(PageOptionsDto, [
   'q',
   'take',
   'page',
-]) {
+] as const) {
   categoryType: CategoryTypeEnum;
 }

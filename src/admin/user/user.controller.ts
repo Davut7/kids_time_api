@@ -8,13 +8,14 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
+  SerializeOptions,
   UseGuards,
 } from '@nestjs/common';
 import { AdminUserService } from './user.service';
 import { UserUpdateDto } from './dto/updateUser.dto';
 import { CurrentUser } from '../../helpers/common/decorators/currentUser.decorator';
 import { AdminTokenDto } from '../token/dto/token.dto';
-import { AuthGuard } from '../../helpers/guards/auth.guard';
 import {
   ApiBearerAuth,
   ApiConflictResponse,
@@ -26,9 +27,12 @@ import {
 } from '@nestjs/swagger';
 import { AdminUserEntity } from './entities/adminUser.entity';
 import { CreateUserDto } from './dto/createUser.dto';
+import { AdminAuthGuard } from 'src/helpers/guards/adminAuth.guard';
+import { GetUsersQuery } from './dto/getUsers.query';
 
 @ApiTags('users')
 @ApiBearerAuth()
+@UseGuards(AdminAuthGuard)
 @Controller('/admin/users')
 export class AdminUserController {
   constructor(private readonly userService: AdminUserService) {}
@@ -66,9 +70,8 @@ export class AdminUserController {
     description: 'Users returned successfully!',
   })
   @Get()
-  @UseGuards(AuthGuard)
-  async findUsers() {
-    return this.userService.getAllUsers();
+  async findUsers(@Query() query: GetUsersQuery) {
+    return this.userService.getAllUsers(query);
   }
 
   @ApiOkResponse({
@@ -76,7 +79,6 @@ export class AdminUserController {
     description: 'Current user returned successfully!',
   })
   @Get('/get-me')
-  @UseGuards(AuthGuard)
   async getMe(@CurrentUser() currentUser: AdminTokenDto) {
     return this.userService.getMe(currentUser);
   }
@@ -87,7 +89,6 @@ export class AdminUserController {
   })
   @ApiParam({ name: 'id', description: 'User ID' })
   @Get(':id')
-  @UseGuards(AuthGuard)
   async findOneUser(@Param('id', ParseUUIDPipe) userId: string) {
     return this.userService.findUserById(userId);
   }
@@ -98,7 +99,6 @@ export class AdminUserController {
   })
   @ApiParam({ name: 'id', description: 'User ID' })
   @Patch(':id')
-  @UseGuards(AuthGuard)
   async updateUser(
     @Param('id', ParseUUIDPipe) userId: string,
     @Body() userUpdateDto: UserUpdateDto,
@@ -117,8 +117,10 @@ export class AdminUserController {
   })
   @ApiParam({ name: 'id', description: 'User ID' })
   @Delete(':id')
-  @UseGuards(AuthGuard)
-  async deleteUser(@Param('id', ParseUUIDPipe) userId: string) {
-    return this.userService.deleteUserById(userId);
+  async deleteUser(
+    @Param('id', ParseUUIDPipe) userId: string,
+    @CurrentUser() currentUser: AdminTokenDto,
+  ) {
+    return this.userService.deleteUserById(currentUser.id, userId);
   }
 }

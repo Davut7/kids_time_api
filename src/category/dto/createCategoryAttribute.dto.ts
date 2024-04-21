@@ -3,5 +3,5 @@ import { CategoryAttributesEntity } from '../entities/categoryAttributes.entity'
 
 export class CreateCategoryAttributeDto extends PickType(
   CategoryAttributesEntity,
-  ['language', 'title', 'description'],
+  ['language', 'title', 'description'] as const,
 ) {}

@@ -4,6 +4,8 @@ import { MinioService } from '../minio/minio.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MediaEntity } from './entities/mediaEntity';
 import { ITransformedFile } from 'src/helpers/common/interfaces/fileTransform.interface';
+import { LanguageEnum } from 'src/helpers/constants';
+import { UploadBookDto } from 'src/books/dto/uploadBook.dto';
 
 @Injectable()
 export class MediaService {
@@ -40,7 +42,9 @@ export class MediaService {
     entityId: string,
     queryRunner: QueryRunner,
     entityColumn: string,
+    entityLng?: LanguageEnum,
   ) {
+    console.log(entityLng);
     const media = new MediaEntity();
     media.originalName = file.originalName;
     media.fileName = file.fileName;
@@ -48,6 +52,9 @@ export class MediaService {
     media.mimeType = file.mimeType;
     media[entityColumn] = entityId;
     media.size = file.size;
+    if (entityLng !== undefined) {
+      media.mediaLng = entityLng;
+    }
     await queryRunner.manager.save(MediaEntity, media);
     return media.id;
   }
@@ -76,6 +83,17 @@ export class MediaService {
       where: { id: mediaId },
     });
     if (!media) throw new NotFoundException('Media not found!');
+    return media;
+  }
+
+  async getMediaByLng(
+    entityColumn: string,
+    entityId: string,
+    lng: LanguageEnum,
+  ) {
+    const media = await this.mediaRepository.findOne({
+      where: { [entityColumn]: entityId, mediaLng: lng },
+    });
     return media;
   }
 }

@@ -2,20 +2,29 @@ import { Module } from '@nestjs/common';
 import { MailsService } from './mails.service';
 import { MailsController } from './mails.controller';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
+import { TokenModule } from 'src/client/token/token.module';
+import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
   imports: [
-    MailerModule.forRoot({
-      transport: {
-        host: 'smtp.gmail.com',
-        auth: {
-          user: '20031212dawut@gmail.com',
-          pass: 'zjms tzyb rczt ubax',
+    TokenModule,
+    RedisModule,
+    MailerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          host: configService.get('SMTP_HOST'),
+          auth: {
+            user: configService.get('SMTP_USER'),
+            pass: configService.get('SMTP_PASS'),
+          },
         },
-      },
+      }),
     }),
   ],
   controllers: [MailsController],
   providers: [MailsService],
+  exports: [MailsService],
 })
 export class MailsModule {}

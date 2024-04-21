@@ -23,6 +23,8 @@ export class LogsMiddleware implements NestMiddleware {
       incomingMessage = 'External request';
     }
 
+    const startTime = process.hrtime();
+
     const notIsLog = notLogHTTPUrls.includes(originalUrl.split('/')?.[2]);
     if (!notIsLog) {
       this.logger.log(
@@ -40,6 +42,10 @@ export class LogsMiddleware implements NestMiddleware {
 
       const message = `Response code: ${statusCode} - Method: ${method} - URL: ${originalUrl} - Host: ${host}.}`;
       if (statusCode < 400) {
+        const elapsedTime = process.hrtime(startTime);
+        const elapsedTimeInMs =
+          elapsedTime[0] * 1000 + elapsedTime[1] / 1000000;
+        console.log(elapsedTime);
         if (!notIsLog) {
           return this.logger.log(statusMessage, [
             host,
@@ -48,6 +54,7 @@ export class LogsMiddleware implements NestMiddleware {
             method,
             JSON.stringify(currentUser ?? 'Not signed in', null, 2),
             message,
+            `Response time: ${elapsedTimeInMs.toFixed(2)} ms`,
           ]);
         }
 

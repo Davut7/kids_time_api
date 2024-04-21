@@ -106,4 +106,13 @@ export class LogsEntity {
   })
   @CreateDateColumn({ type: 'timestamptz' })
   public createdAt: string;
+
+  @ApiProperty({
+    title: 'Response time',
+    nullable: true,
+    description: 'Request response time',
+    example: '355ms',
+  })
+  @Column({ nullable: true })
+  public time: string;
 }

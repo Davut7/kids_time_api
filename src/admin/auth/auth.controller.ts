@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AdminAuthService } from './auth.service';
-import { LoginDto } from './dto/userLogin.dto';
+import { AdminLoginDto } from './dto/userLogin.dto';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -23,8 +23,8 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import { RedisService } from 'src/redis/redis.service';
-import { AuthGuard } from 'src/helpers/guards/auth.guard';
 import { AdminUserEntity } from '../user/entities/adminUser.entity';
+import { AdminAuthGuard } from 'src/helpers/guards/adminAuth.guard';
 
 @ApiTags('auth')
 @Controller('/admin/auth')
@@ -39,7 +39,8 @@ export class AdminAuthController {
     schema: {
       type: 'object',
       properties: {
-        user: { $ref: getSchemaPath(AdminUserEntity) },
+        id: { description: 'User id', type: 'string' },
+        firstName: { description: 'Uer first name', type: 'string' },
         message: { type: 'string', example: 'System user login successfully!' },
         accessToken: { type: 'string' },
         refreshToken: { type: 'string' },
@@ -55,7 +56,7 @@ export class AdminAuthController {
     description: 'User with not found!',
   })
   @Post('login')
-  async login(@Body() loginDto: LoginDto, @Res() res) {
+  async login(@Body() loginDto: AdminLoginDto, @Res() res) {
     const user = await this.authService.loginUser(loginDto);
     res.cookie('refreshToken', user.refreshToken, {
       maxAge: 30 * 24 * 60 * 60 * 1000,
@@ -63,7 +64,8 @@ export class AdminAuthController {
     });
     res.status(200).json({
       message: 'System user login successfully!',
-      user: user.user,
+      id: user.id,
+      firstName: user.firstName,
       accessToken: user.accessToken,
       refreshToken: user.refreshToken,
     });
@@ -118,7 +120,7 @@ export class AdminAuthController {
     description: 'User unauthorized',
   })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(AdminAuthGuard)
   @Post('logout')
   async logout(@Req() req, @Res() res) {
     const refreshToken = req.cookies['refreshToken'];

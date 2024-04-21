@@ -88,27 +88,38 @@ export class CategoryService {
   }
 
   async deleteCategory(categoryId: string) {
-    const category = await this.getOneCategory(categoryId);
-    if (!category) throw new NotFoundException('Category not found');
-    await this.categoryRepository.delete(category.id);
-
-    return {
-      message: 'Category deleted successfully',
-    };
-  }
-
-  async uploadImage(file: ITransformedFile, categoryId: string) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
     await queryRunner.connect();
     const category = await this.getOneCategory(categoryId);
-    if (!category) {
-      await unlink(file.filePath);
+    if (!category) throw new NotFoundException('Category not found');
+    let categoryImageIds: string[] = [];
+    for (const media of category.medias) {
+      categoryImageIds.push(media.id);
     }
+    try {
+      await this.categoryRepository.delete(category.id);
+      return {
+        message: 'Category deleted successfully',
+      };
+    } catch (error) {
+      queryRunner.rollbackTransaction();
+      await this.mediaService.deleteMedias(categoryImageIds, queryRunner);
+      throw new InternalServerErrorException(error);
+    } finally {
+      queryRunner.release();
+    }
+  }
+
+  async uploadImage(image: ITransformedFile, categoryId: string) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
+    await queryRunner.connect();
+    await this.getOneCategory(categoryId);
     let uploadedFileId: string;
     try {
       const mediaId = await this.mediaService.createFileMedia(
-        file,
+        image,
         categoryId,
         queryRunner,
         'categoryId',
@@ -120,6 +131,7 @@ export class CategoryService {
       };
     } catch (error) {
       queryRunner.rollbackTransaction();
+      await unlink(image.filePath);
       await this.mediaService.deleteOneMedia(uploadedFileId, queryRunner);
       throw new InternalServerErrorException(error);
     } finally {

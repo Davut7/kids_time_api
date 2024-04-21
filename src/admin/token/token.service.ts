@@ -13,12 +13,16 @@ export class AdminTokenService {
   ) {}
 
   generateTokens(payload: AdminTokenDto) {
-    const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
-      expiresIn: '10m',
+    const accessToken = jwt.sign(payload, process.env.JWT_ADMIN_ACCESS_SECRET, {
+      expiresIn: '15m',
     });
-    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
-      expiresIn: '30d',
-    });
+    const refreshToken = jwt.sign(
+      payload,
+      process.env.JWT_ADMIN_REFRESH_SECRET,
+      {
+        expiresIn: '30d',
+      },
+    );
     return {
       accessToken,
       refreshToken,
@@ -45,7 +49,10 @@ export class AdminTokenService {
 
   validateAccessToken(accessToken: string) {
     try {
-      const token = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
+      const token = jwt.verify(
+        accessToken,
+        process.env.JWT_ADMIN_ACCESS_SECRET,
+      );
       return token as AdminTokenDto;
     } catch (err) {
       throw new UnauthorizedException();
@@ -54,7 +61,10 @@ export class AdminTokenService {
 
   validateRefreshToken(refreshToken: string) {
     try {
-      const token = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+      const token = jwt.verify(
+        refreshToken,
+        process.env.JWT_ADMIN_REFRESH_SECRET,
+      );
       return token as AdminTokenDto;
     } catch (err) {
       throw new UnauthorizedException();

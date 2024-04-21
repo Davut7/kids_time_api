@@ -59,7 +59,7 @@ class CustomLogger extends ConsoleLogger {
       });
     } else {
       const [
-        [host, url, statusCode, method, user, nextLoggerMessage],
+        [host, url, statusCode, method, user, nextLoggerMessage, time],
         context,
       ] = optionalParams;
 
@@ -67,7 +67,7 @@ class CustomLogger extends ConsoleLogger {
         nextLoggerMessage || message,
         context || optionalParams[optionalParams.length - 1],
       ]);
-
+      console.log(optionalParams);
       await this.logService.createLog({
         host,
         url,
@@ -77,6 +77,7 @@ class CustomLogger extends ConsoleLogger {
         message,
         context: context || optionalParams[optionalParams.length - 1],
         level: 'log',
+        time,
       });
     }
   }

@@ -10,14 +10,14 @@ export class MinioService implements OnModuleInit {
 
   constructor(private configService: ConfigService) {
     this.minioClient = new Minio.Client({
-      endPoint: process.env.MINIO_ENDPOINT,
-      port: Number(process.env.MINIO_PORT),
-      useSSL: process.env.MINIO_USE_SSL === 'true',
-      accessKey: process.env.MINIO_ACCESS_KEY,
-      secretKey: process.env.MINIO_SECRET_KEY,
+      endPoint: this.configService.getOrThrow('MINIO_ENDPOINT'),
+      port: +this.configService.getOrThrow('MINIO_PORT'),
+      useSSL: false,
+      accessKey: this.configService.getOrThrow('MINIO_ACCESS_KEY'),
+      secretKey: this.configService.getOrThrow('MINIO_SECRET_KEY'),
     });
 
-    this.bucketName = process.env.MINIO_BUCKET_NAME;
+    this.bucketName = this.configService.getOrThrow('MINIO_BUCKET_NAME');
   }
 
   async onModuleInit() {
@@ -107,5 +107,17 @@ export class MinioService implements OnModuleInit {
         console.log('Objects deleted successfully');
       }
     });
+  }
+
+  async getFileStream(fileName: string) {
+    try {
+      const stream = await this.minioClient.getObject(
+        this.bucketName,
+        fileName,
+      );
+      return stream;
+    } catch (err) {
+      console.error('Error occurred while downloading file:', err);
+    }
   }
 }

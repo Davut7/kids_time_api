@@ -1,7 +1,21 @@
-import { PickType } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
+import { IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
 import { AdminUserEntity } from 'src/admin/user/entities/adminUser.entity';
 
-export class LoginDto extends PickType(AdminUserEntity, [
+export class AdminLoginDto extends PickType(AdminUserEntity, [
   'firstName',
-  'password',
-] as const) {}
+] as const) {
+  @ApiProperty({
+    title: 'password',
+    name: 'password',
+    type: String,
+    description:
+      'User password. /^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[@$!%*?&])[A-Za-zd@$!%*?&]{8,}$/',
+    required: true,
+    example: 'Test123!',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @IsStrongPassword()
+  password: string;
+}

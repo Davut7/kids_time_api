@@ -8,7 +8,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { LogsEntity } from './entity/log.entity';
-import { AuthGuard } from 'src/helpers/guards/auth.guard';
+import { AdminAuthGuard } from 'src/helpers/guards/adminAuth.guard';
 
 @ApiTags('logs')
 @Controller('/root/logs')
@@ -23,7 +23,7 @@ export class LoggerController {
   })
   @ApiBearerAuth()
   @ApiUnauthorizedResponse({ status: 401, description: 'User unauthorized' })
-  @UseGuards(AuthGuard)
+  @UseGuards(AdminAuthGuard)
   getLogs(@Query() query: FindLogsFilter) {
     return this.loggerService.findAllLogs(query);
   }

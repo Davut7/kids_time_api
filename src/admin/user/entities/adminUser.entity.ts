@@ -3,6 +3,7 @@ import { BaseEntity } from '../../../helpers/entities/baseEntity.entity';
 import { AdminTokenEntity } from '../../token/entities/token.entity';
 import { IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Exclude, Expose } from 'class-transformer';
 
 @Entity({ name: 'admin_users' })
 export class AdminUserEntity extends BaseEntity {
@@ -16,6 +17,7 @@ export class AdminUserEntity extends BaseEntity {
   })
   @IsNotEmpty()
   @IsString()
+  @Expose()
   @Column({ type: 'text', nullable: false })
   firstName: string;
 
@@ -31,6 +33,7 @@ export class AdminUserEntity extends BaseEntity {
   @IsNotEmpty()
   @IsString()
   @IsStrongPassword()
+  @Exclude()
   @Column({ type: 'varchar', nullable: false })
   password: string;
 

@@ -1,37 +1,32 @@
-import {
-  IsNotEmpty,
-  IsOptional,
-  IsPhoneNumber,
-  IsString,
-} from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateMailDto {
   @IsNotEmpty()
   @IsString()
-  contactName: string;
+  @ApiProperty({
+    name: 'firstName',
+    description: 'User first name',
+    required: true,
+  })
+  firstName: string;
 
   @IsNotEmpty()
   @IsString()
-  street: string;
-
-  @IsNotEmpty()
-  @IsString()
-  city: string;
-
-  @IsNotEmpty()
-  @IsString()
-  postCode: string;
-
-  @IsNotEmpty()
-  @IsString()
-  @IsPhoneNumber('TM')
-  phoneNumber: string;
-
-  @IsOptional()
-  @IsString()
+  @IsEmail()
+  @ApiProperty({
+    name: 'email',
+    description: 'User email',
+    required: true,
+  })
   email: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
+  @ApiProperty({
+    name: 'message',
+    description: 'User message',
+    required: true,
+  })
   message: string;
 }

@@ -14,6 +14,7 @@ export class ImageTransformer implements PipeTransform<Express.Multer.File> {
   constructor(private readonly minioService: MinioService) {}
 
   async transform(file: Express.Multer.File): Promise<ITransformedFile> {
+    console.log(file);
     if (!file) throw new BadRequestException('Image not provided');
     let transformedFile: ITransformedFile;
     try {
@@ -33,6 +34,7 @@ export class ImageTransformer implements PipeTransform<Express.Multer.File> {
         size: file.size.toString(),
       };
       await unlink(file.path);
+      return transformedFile;
     } catch (err) {
       console.error(`Error processing file ${file.originalname}:`, err);
       await unlink(file.path);
@@ -40,7 +42,5 @@ export class ImageTransformer implements PipeTransform<Express.Multer.File> {
         'Failed to process some files. Please check server logs for details.',
       );
     }
-
-    return transformedFile;
   }
 }

@@ -18,6 +18,7 @@ export class AdminAuthGuard implements CanActivate {
     const req = context.switchToHttp().getRequest();
     try {
       const authHeader = req.headers.authorization;
+
       if (!authHeader) throw new UnauthorizedException('User unauthorized');
       const bearer = authHeader.split(' ')[0];
       const token = authHeader.split(' ')[1];
@@ -32,8 +33,8 @@ export class AdminAuthGuard implements CanActivate {
       if (tokenInBlackList) throw new UnauthorizedException('Token is invalid');
       req.currentUser = userToken;
       return true;
-    } catch (e) {
-      throw new UnauthorizedException('User unauthorized');
+    } catch (err: any) {
+      throw new UnauthorizedException('User unauthorized'+ " " + err.message);
     }
   }
 }

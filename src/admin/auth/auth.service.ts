@@ -9,7 +9,7 @@ import { AdminUserEntity } from '../user/entities/adminUser.entity';
 import { Repository } from 'typeorm';
 import { AdminTokenService } from '../token/token.service';
 import { AdminTokenDto } from '../token/dto/token.dto';
-import { LoginDto } from './dto/userLogin.dto';
+import { AdminLoginDto } from './dto/userLogin.dto';
 import { compare } from 'bcrypt';
 @Injectable()
 export class AdminAuthService {
@@ -19,7 +19,7 @@ export class AdminAuthService {
     private tokenService: AdminTokenService,
   ) {}
 
-  async loginUser(dto: LoginDto) {
+  async loginUser(dto: AdminLoginDto) {
     const user = await this.userRepository.findOne({
       where: { firstName: dto.firstName },
     });
@@ -38,7 +38,8 @@ export class AdminAuthService {
 
     return {
       message: 'User login successful!',
-      user: user,
+      id: user.id,
+      firstName: user.firstName,
       ...tokens,
     };
   }
