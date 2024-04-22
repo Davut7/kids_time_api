@@ -25,6 +25,7 @@ import {
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiTags,
   getSchemaPath,
@@ -54,6 +55,7 @@ import { UserTokenDto } from 'src/client/token/dto/token.dto';
 export class DrawingsController {
   constructor(private readonly drawingsService: DrawingsService) {}
 
+  @ApiOperation({ summary: 'Create a new drawing' })
   @ApiCreatedResponse({
     description: 'Drawing created successfully',
     schema: {
@@ -77,6 +79,7 @@ export class DrawingsController {
     return this.drawingsService.createDrawing(dto, categoryId);
   }
 
+  @ApiOperation({ summary: 'Get drawings' })
   @ApiOkResponse({
     description: 'Drawings returned successfully',
     schema: {
@@ -92,6 +95,7 @@ export class DrawingsController {
     return this.drawingsService.getDrawings(query);
   }
 
+  @ApiOperation({ summary: 'Get a single drawing' })
   @ApiOkResponse({
     description: 'Single drawing retrieved successfully',
     type: DrawingsEntity,
@@ -110,6 +114,7 @@ export class DrawingsController {
     return this.drawingsService.getOneDrawing(drawingsId, currentUser);
   }
 
+  @ApiOperation({ summary: 'Update a drawing' })
   @ApiOkResponse({
     description: 'Drawing updated successfully',
     schema: {
@@ -134,6 +139,7 @@ export class DrawingsController {
     return this.drawingsService.updateDrawing(drawingId, dto);
   }
 
+  @ApiOperation({ summary: 'Delete a drawing' })
   @ApiOkResponse({
     description: 'Drawing deleted successfully',
     schema: {
@@ -154,6 +160,7 @@ export class DrawingsController {
     return this.drawingsService.deleteDrawing(drawingId);
   }
 
+  @ApiOperation({ summary: 'Upload media for a drawing' })
   @ApiOkResponse({ description: 'Drawing uploaded successfully' })
   @ApiNotFoundResponse({
     type: NotFoundException,
@@ -187,6 +194,7 @@ export class DrawingsController {
     return this.drawingsService.uploadMedia(file, drawingId, dto);
   }
 
+  @ApiOperation({ summary: 'Delete media of a drawing' })
   @ApiOkResponse({
     description: 'Drawings media uploaded successfully',
     schema: {
@@ -216,6 +224,7 @@ export class DrawingsController {
     return this.drawingsService.deleteMedia(drawingId, mediaId);
   }
 
+  @ApiOperation({ summary: 'Create an attribute for a drawing' })
   @ApiCreatedResponse({
     description: 'Drawings attribute created successfully',
     schema: {
@@ -244,6 +253,7 @@ export class DrawingsController {
     return this.drawingsService.createAttribute(dto, drawingId);
   }
 
+  @ApiOperation({ summary: 'Update an attribute for a drawing' })
   @ApiOkResponse({
     description: 'Drawings attribute updated successfully',
     schema: {
@@ -270,6 +280,7 @@ export class DrawingsController {
     return this.drawingsService.updateAttribute(drawingId, attributeId, dto);
   }
 
+  @ApiOperation({ summary: 'Delete an attribute for a drawing' })
   @ApiOkResponse({
     description: 'Drawings attribute deleted successfully',
   })
@@ -285,6 +296,7 @@ export class DrawingsController {
     return this.drawingsService.deleteAttribute(drawingId, attributeId);
   }
 
+  @ApiOperation({ summary: 'Download a drawing' })
   @ApiOkResponse({
     type: String,
     description: 'Returns link for downloading drawing',

@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CategoryTypeEnum, LanguageEnum } from 'src/helpers/constants';
-import { BaseEntity } from 'src/helpers/entities/baseEntity.entity';
-import { MediaEntity } from 'src/media/entities/mediaEntity';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { CategoryAttributesEntity } from './categoryAttributes.entity';
-import { BooksEntity } from 'src/books/entities/books.entity';
-import { DrawingsEntity } from 'src/drawings/entities/drawings.entity';
+import { CategoryTypeEnum } from '../../helpers/constants/categoryType.enum';
+import { BooksEntity } from '../../books/entities/books.entity';
+import { DrawingsEntity } from '../../drawings/entities/drawings.entity';
+import { MediaEntity } from '../../media/entities/mediaEntity';
+import { BaseEntity } from '../../helpers/entities/baseEntity.entity';
 
 @Entity({ name: 'categories' })
 export class CategoryEntity extends BaseEntity {

@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Entity, Column, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
-import { BaseEntity } from 'src/helpers/entities/baseEntity.entity';
-import { CategoryEntity } from 'src/category/entities/category.entity';
-import { LanguageEnum } from 'src/helpers/constants';
-import { BooksEntity } from 'src/books/entities/books.entity';
-import { DrawingsEntity } from 'src/drawings/entities/drawings.entity';
-import { UserEntity } from 'src/client/user/entities/user.entity';
+import { BaseEntity } from '../../helpers/entities/baseEntity.entity';
+import { LanguageEnum } from '../../helpers/constants/languageEnum';
+import { CategoryEntity } from '../../category/entities/category.entity';
+import { BooksEntity } from '../../books/entities/books.entity';
+import { DrawingsEntity } from '../../drawings/entities/drawings.entity';
+import { UserEntity } from '../../client/user/entities/user.entity';
 
 @Entity({ name: 'medias' })
 export class MediaEntity extends BaseEntity {

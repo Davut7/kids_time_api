@@ -20,6 +20,7 @@ import {
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
@@ -42,6 +43,7 @@ import { imageFilter } from 'src/helpers/filters/imageFilter';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @ApiOperation({ summary: 'Get current user' })
   @ApiOkResponse({
     type: UserEntity,
     description: 'Current user returned successfully!',
@@ -51,6 +53,7 @@ export class UserController {
     return this.userService.getMe(currentUser);
   }
 
+  @ApiOperation({ summary: 'Add experience points to user' })
   @ApiOkResponse({
     description: 'Successfully adds experience points to the user.',
   })
@@ -63,6 +66,7 @@ export class UserController {
     return this.userService.addExp(currentUser, dto);
   }
 
+  @ApiOperation({ summary: 'Update user' })
   @ApiOkResponse({
     type: UserEntity,
     description: 'User by id found',
@@ -76,6 +80,7 @@ export class UserController {
     return this.userService.updateUserById(userId, userUpdateDto);
   }
 
+  @ApiOperation({ summary: 'Delete user' })
   @ApiOkResponse({
     description: 'User by id deleted',
     schema: {
@@ -90,6 +95,7 @@ export class UserController {
     return this.userService.deleteUserById(currentUser);
   }
 
+  @ApiOperation({ summary: 'Upload user image' })
   @ApiOkResponse({ description: 'User image uploaded successfully' })
   @ApiNotFoundResponse({
     type: NotFoundException,

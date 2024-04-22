@@ -36,7 +36,7 @@ export class BooksService {
     private dataSource: DataSource,
   ) {}
 
-  async createBooks(dto: CreateBookDto, categoryId: string) {
+  async createBook(dto: CreateBookDto, categoryId: string) {
     const category = await this.categoryRepository.findOne({
       where: { id: categoryId },
     });
@@ -93,7 +93,7 @@ export class BooksService {
     return book;
   }
 
-  async updateBooks(bookId: string, dto: UpdateBookDto) {
+  async updateBook(bookId: string, dto: UpdateBookDto) {
     const book = await this.getOneBook(bookId);
 
     Object.assign(book, dto);
@@ -106,7 +106,7 @@ export class BooksService {
     };
   }
 
-  async deleteBooks(bookId: string) {
+  async deleteBook(bookId: string) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
     await queryRunner.connect();
@@ -193,7 +193,7 @@ export class BooksService {
     const candidate = await this.isAttributeUnique(dto.language, bookId);
     if (candidate)
       throw new ConflictException(
-        'Books attribute with this language already exists',
+        'Book attribute with this language already exists',
       );
     const attribute = this.booksAttributesRepository.create({
       ...dto,

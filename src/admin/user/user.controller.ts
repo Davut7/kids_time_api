@@ -21,6 +21,7 @@ import {
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiTags,
   getSchemaPath,
@@ -37,6 +38,7 @@ import { GetUsersQuery } from './dto/getUsers.query';
 export class AdminUserController {
   constructor(private readonly userService: AdminUserService) {}
 
+  @ApiOperation({ summary: 'Create a new user' })
   @ApiCreatedResponse({
     schema: {
       type: 'object',
@@ -48,20 +50,21 @@ export class AdminUserController {
   })
   @ApiConflictResponse({
     type: ConflictException,
-    description: 'User with name  already exists!',
+    description: 'User with name already exists!',
   })
   @Post('/create-user')
   async createUser(@Body() createUserDto: CreateUserDto) {
     return this.userService.createUser(createUserDto);
   }
 
+  @ApiOperation({ summary: 'Get all users' })
   @ApiOkResponse({
     schema: {
       type: 'object',
       properties: {
         message: {
           type: 'string',
-          example: 'User returned successfully',
+          example: 'Users returned successfully',
         },
         users: { items: { $ref: getSchemaPath(AdminUserEntity) } },
         usersCount: { type: 'number' },
@@ -74,6 +77,7 @@ export class AdminUserController {
     return this.userService.getAllUsers(query);
   }
 
+  @ApiOperation({ summary: 'Get current user' })
   @ApiOkResponse({
     type: AdminUserEntity,
     description: 'Current user returned successfully!',
@@ -83,9 +87,10 @@ export class AdminUserController {
     return this.userService.getMe(currentUser);
   }
 
+  @ApiOperation({ summary: 'Get user by ID' })
   @ApiOkResponse({
     type: AdminUserEntity,
-    description: 'User by id found',
+    description: 'User by ID found',
   })
   @ApiParam({ name: 'id', description: 'User ID' })
   @Get(':id')
@@ -93,9 +98,10 @@ export class AdminUserController {
     return this.userService.findUserById(userId);
   }
 
+  @ApiOperation({ summary: 'Update user by ID' })
   @ApiOkResponse({
     type: AdminUserEntity,
-    description: 'User by id found',
+    description: 'User by ID found',
   })
   @ApiParam({ name: 'id', description: 'User ID' })
   @Patch(':id')
@@ -106,8 +112,9 @@ export class AdminUserController {
     return this.userService.updateUserById(userId, userUpdateDto);
   }
 
+  @ApiOperation({ summary: 'Delete user by ID' })
   @ApiOkResponse({
-    description: 'User by id deleted',
+    description: 'User by ID deleted',
     schema: {
       type: 'object',
       properties: {

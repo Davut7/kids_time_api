@@ -1,8 +1,8 @@
-import { BooksEntity } from 'src/books/entities/books.entity';
-import { UserEntity } from 'src/client/user/entities/user.entity';
-import { DrawingsEntity } from 'src/drawings/entities/drawings.entity';
-import { BaseEntity } from 'src/helpers/entities/baseEntity.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
+import { BaseEntity } from '../../helpers/entities/baseEntity.entity';
+import { UserEntity } from '../../client/user/entities/user.entity';
+import { BooksEntity } from '../../books/entities/books.entity';
+import { DrawingsEntity } from '../../drawings/entities/drawings.entity';
 
 @Entity({ name: 'user_favorites' })
 export class UserFavoritesEntity extends BaseEntity {

@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { LanguageEnum } from 'src/helpers/constants';
-import { BaseEntity } from 'src/helpers/entities/baseEntity.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { DrawingsEntity } from './drawings.entity';
 import { IsNotEmpty, IsString, IsEnum } from 'class-validator';
+import { LanguageEnum } from '../../helpers/constants/languageEnum';
+import { BaseEntity } from '../../helpers/entities/baseEntity.entity';
 
 @Entity({ name: 'drawings_attributes' })
 export class DrawingsAttributesEntity extends BaseEntity {

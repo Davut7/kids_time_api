@@ -1,13 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BaseEntity } from 'src/helpers/entities/baseEntity.entity';
-import { MediaEntity } from 'src/media/entities/mediaEntity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, OneToMany } from 'typeorm';
 import { BooksAttributesEntity } from './booksAttributes.entity';
-import { CategoryEntity } from 'src/category/entities/category.entity';
 import { IsInt, IsNotEmpty, IsString } from 'class-validator';
-import { UserFavoritesEntity } from 'src/favorites/entities/favorites.entity';
+import { BaseEntity } from '../../helpers/entities/baseEntity.entity';
+import { CategoryEntity } from '../../category/entities/category.entity';
+import { MediaEntity } from '../../media/entities/mediaEntity';
+import { UserFavoritesEntity } from '../../favorites/entities/favorites.entity';
 
 @Entity({ name: 'books' })
+@Index('IDX_BOOKS_CATEGORY_ID', ['categoryId'])
 export class BooksEntity extends BaseEntity {
   @ApiProperty({
     title: 'Level to draw',

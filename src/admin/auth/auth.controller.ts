@@ -18,6 +18,7 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiTags,
   ApiUnauthorizedResponse,
   getSchemaPath,
@@ -34,13 +35,14 @@ export class AdminAuthController {
     private redisService: RedisService,
   ) {}
 
+  @ApiOperation({ summary: 'User login' })
   @ApiCreatedResponse({
     description: 'User logged in',
     schema: {
       type: 'object',
       properties: {
         id: { description: 'User id', type: 'string' },
-        firstName: { description: 'Uer first name', type: 'string' },
+        firstName: { description: 'User first name', type: 'string' },
         message: { type: 'string', example: 'System user login successfully!' },
         accessToken: { type: 'string' },
         refreshToken: { type: 'string' },
@@ -53,7 +55,7 @@ export class AdminAuthController {
   })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'User with not found!',
+    description: 'User not found!',
   })
   @Post('login')
   async login(@Body() loginDto: AdminLoginDto, @Res() res) {
@@ -71,8 +73,9 @@ export class AdminAuthController {
     });
   }
 
+  @ApiOperation({ summary: 'Refresh user tokens' })
   @ApiCreatedResponse({
-    description: 'User tokens refreshed in',
+    description: 'User tokens refreshed',
     schema: {
       type: 'object',
       properties: {
@@ -106,6 +109,7 @@ export class AdminAuthController {
     });
   }
 
+  @ApiOperation({ summary: 'User logout' })
   @ApiOkResponse({
     description: 'User logged out',
     schema: {

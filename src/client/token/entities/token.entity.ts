@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../helpers/entities/baseEntity.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { UserEntity } from 'src/client/user/entities/user.entity';
+import { UserEntity } from '../../user/entities/user.entity';
 
 @Entity({ name: 'user_tokens' })
 export class TokenEntity extends BaseEntity {

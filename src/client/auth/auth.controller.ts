@@ -20,6 +20,7 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiTags,
   ApiUnauthorizedResponse,
   getSchemaPath,
@@ -43,6 +44,7 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
+  @ApiOperation({ summary: 'User registration' })
   @ApiCreatedResponse({
     description: 'User registration successful',
     schema: {
@@ -66,6 +68,7 @@ export class AuthController {
     return this.authService.registerUser(registrationDto);
   }
 
+  @ApiOperation({ summary: 'Verify user' })
   @ApiOkResponse({
     description: 'Verification code sent successfully',
     schema: {
@@ -109,6 +112,7 @@ export class AuthController {
     });
   }
 
+  @ApiOperation({ summary: 'User login' })
   @ApiCreatedResponse({
     description: 'User logged in',
     schema: {
@@ -145,6 +149,7 @@ export class AuthController {
     });
   }
 
+  @ApiOperation({ summary: 'Refresh user tokens' })
   @ApiCreatedResponse({
     description: 'User tokens refreshed in',
     schema: {
@@ -180,6 +185,7 @@ export class AuthController {
     });
   }
 
+  @ApiOperation({ summary: 'User logout' })
   @ApiOkResponse({
     description: 'User logged out',
     schema: {
@@ -207,6 +213,7 @@ export class AuthController {
     });
   }
 
+  @ApiOperation({ summary: 'Resend verification code' })
   @Throttle({ default: { limit: 1, ttl: 1000 * 60 * 2 } })
   @UseGuards(ThrottlerGuard)
   @Post(':userId/resend-code')
@@ -215,6 +222,7 @@ export class AuthController {
     return code;
   }
 
+  @ApiOperation({ summary: 'Google authentication redirect' })
   @UseGuards(GoogleAuthGuard)
   @Get('google/redirect')
   async googleAuthRedirect(@Res() res, @Req() req) {

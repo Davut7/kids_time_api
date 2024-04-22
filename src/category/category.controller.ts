@@ -1,22 +1,22 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
+  Post,
+  Delete,
+  Param,
+  Query,
+  UseGuards,
+  Patch,
+  UploadedFile,
+  UseInterceptors,
+  Body,
+  ParseUUIDPipe,
   InternalServerErrorException,
   NotFoundException,
-  Param,
-  ParseUUIDPipe,
-  Patch,
-  Post,
-  Query,
-  UploadedFile,
-  UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import {
-  ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiBadRequestResponse,
   ApiConsumes,
   ApiCreatedResponse,
   ApiInternalServerErrorResponse,
@@ -25,6 +25,7 @@ import {
   ApiParam,
   ApiTags,
   getSchemaPath,
+  ApiOperation,
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -48,6 +49,10 @@ import { AdminAuthGuard } from 'src/helpers/guards/adminAuth.guard';
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
+  @ApiOperation({
+    summary: 'Create Category',
+    description: 'Create a new category',
+  })
   @ApiCreatedResponse({
     description: 'Category created successfully',
     schema: {
@@ -64,6 +69,10 @@ export class CategoryController {
     return this.categoryService.createCategory(dto);
   }
 
+  @ApiOperation({
+    summary: 'Get Categories',
+    description: 'Retrieve a list of categories',
+  })
   @ApiOkResponse({
     description: 'List of categories',
     schema: {
@@ -79,6 +88,10 @@ export class CategoryController {
     return this.categoryService.getCategories(query);
   }
 
+  @ApiOperation({
+    summary: 'Get Category by ID',
+    description: 'Retrieve a single category by its ID',
+  })
   @ApiOkResponse({
     description: 'Single category retrieved successfully',
     type: CategoryEntity,
@@ -93,6 +106,10 @@ export class CategoryController {
     return this.categoryService.getOneCategory(categoryId);
   }
 
+  @ApiOperation({
+    summary: 'Update Category',
+    description: 'Update an existing category',
+  })
   @ApiOkResponse({
     description: 'Category updated successfully',
     schema: {
@@ -117,6 +134,10 @@ export class CategoryController {
     return this.categoryService.updateCategory(categoryId, dto);
   }
 
+  @ApiOperation({
+    summary: 'Delete Category',
+    description: 'Delete an existing category',
+  })
   @ApiOkResponse({
     description: 'Category deleted successfully',
     schema: {
@@ -137,6 +158,10 @@ export class CategoryController {
     return this.categoryService.deleteCategory(categoryId);
   }
 
+  @ApiOperation({
+    summary: 'Upload Category Image',
+    description: 'Upload an image for a category',
+  })
   @ApiOkResponse({ description: 'Category image uploaded successfully' })
   @ApiNotFoundResponse({
     type: NotFoundException,
@@ -169,6 +194,10 @@ export class CategoryController {
     return this.categoryService.uploadImage(file, categoryId);
   }
 
+  @ApiOperation({
+    summary: 'Delete Category Image',
+    description: 'Delete an image of a category',
+  })
   @ApiOkResponse({
     description: 'Category image uploaded successfully',
     schema: {
@@ -198,6 +227,10 @@ export class CategoryController {
     return this.categoryService.deleteImage(categoryId, imageId);
   }
 
+  @ApiOperation({
+    summary: 'Create Category Attribute',
+    description: 'Create a new attribute for a category',
+  })
   @ApiCreatedResponse({
     description: 'Category attribute created successfully',
     schema: {
@@ -226,6 +259,10 @@ export class CategoryController {
     return this.categoryService.createAttribute(dto, categoryId);
   }
 
+  @ApiOperation({
+    summary: 'Update Category Attribute',
+    description: 'Update an existing attribute of a category',
+  })
   @ApiOkResponse({
     description: 'Category attribute updated successfully',
     schema: {
@@ -252,6 +289,10 @@ export class CategoryController {
     return this.categoryService.updateAttribute(categoryId, attributeId, dto);
   }
 
+  @ApiOperation({
+    summary: 'Delete Category Attribute',
+    description: 'Delete an attribute of a category',
+  })
   @ApiOkResponse({
     description: 'Category attribute deleted successfully',
   })

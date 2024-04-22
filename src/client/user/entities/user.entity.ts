@@ -7,10 +7,10 @@ import {
   IsStrongPassword,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { TokenEntity } from 'src/client/token/entities/token.entity';
-import { MediaEntity } from 'src/media/entities/mediaEntity';
-import { UserFavoritesEntity } from 'src/favorites/entities/favorites.entity';
 import { Exclude } from 'class-transformer';
+import { TokenEntity } from '../../token/entities/token.entity';
+import { MediaEntity } from '../../../media/entities/mediaEntity';
+import { UserFavoritesEntity } from '../../../favorites/entities/favorites.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity extends BaseEntity {
@@ -111,5 +111,5 @@ export class UserEntity extends BaseEntity {
   media: MediaEntity;
 
   @OneToMany(() => UserFavoritesEntity, (favorites) => favorites.user)
-  favorites:UserFavoritesEntity[];
+  favorites: UserFavoritesEntity[];
 }
