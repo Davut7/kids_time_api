@@ -33,6 +33,7 @@ import * as redisStore from 'cache-manager-redis-store';
       envFilePath: `.${process.env.NODE_ENV}.env`,
       validate,
       isGlobal: true,
+      cache: true,
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],

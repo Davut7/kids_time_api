@@ -1,4 +1,4 @@
-import { HttpAdapterHost, NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import 'reflect-metadata';
 import helmet from 'helmet';
@@ -6,10 +6,9 @@ import * as cookieParser from 'cookie-parser';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import * as compression from 'compression';
 import * as Sentry from '@sentry/node';
-import { SentryFilter } from './helpers/filters/sentry.filter';
 import CustomLogger from './logger/helpers/customLogger';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { TimeoutInterceptor } from './helpers/interceptors/timout.interceptor';
+import { TimeoutInterceptor } from './helpers/interceptors/timeout.interceptor';
 
 async function bootstrap() {
   const port = process.env.PORT;
