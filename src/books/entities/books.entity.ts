@@ -6,6 +6,7 @@ import { BaseEntity } from '../../helpers/entities/baseEntity.entity';
 import { CategoryEntity } from '../../category/entities/category.entity';
 import { MediaEntity } from '../../media/entities/mediaEntity';
 import { UserFavoritesEntity } from '../../favorites/entities/favorites.entity';
+import { BooksReadEntity } from '../../client/user/entities/booksRead.entity';
 
 @Entity({ name: 'books' })
 @Index('IDX_BOOKS_CATEGORY_ID', ['categoryId'])
@@ -44,4 +45,7 @@ export class BooksEntity extends BaseEntity {
 
   @OneToMany(() => UserFavoritesEntity, (favorites) => favorites.book)
   favorites: UserFavoritesEntity[];
+
+  @OneToMany(() => BooksReadEntity, (booksRead) => booksRead.book)
+  readBy: BooksReadEntity[];
 }

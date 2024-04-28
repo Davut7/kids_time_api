@@ -45,7 +45,6 @@ export class LogsMiddleware implements NestMiddleware {
         const elapsedTime = process.hrtime(startTime);
         const elapsedTimeInMs =
           elapsedTime[0] * 1000 + elapsedTime[1] / 1000000;
-        console.log(elapsedTime);
         if (!notIsLog) {
           return this.logger.log(statusMessage, [
             host,

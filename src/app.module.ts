@@ -14,7 +14,7 @@ import { MailsModule } from './mails/mails.module';
 import { MediaModule } from './media/media.module';
 import { RedisModule } from './redis/redis.module';
 import { AdminUserService } from './admin/user/user.service';
-import { CreateUserDto } from './admin/user/dto/createUser.dto';
+import { CreateAdminUserDto } from './admin/user/dto/createUser.dto';
 import { CategoryModule } from './category/category.module';
 import { AuthModule } from './client/auth/auth.module';
 import { TokenModule } from './client/token/token.module';
@@ -23,7 +23,7 @@ import { BooksModule } from './books/books.module';
 import { MinioModule } from './minio/minio.module';
 import { DrawingsModule } from './drawings/drawings.module';
 import { FavoritesModule } from './favorites/favorites.module';
-import { validate } from './config/env.validation';
+// import { validate } from './config/env.validation';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-redis-store';
 
@@ -31,7 +31,7 @@ import * as redisStore from 'cache-manager-redis-store';
   imports: [
     ConfigModule.forRoot({
       envFilePath: `.${process.env.NODE_ENV}.env`,
-      validate,
+      // validate,
       isGlobal: true,
       cache: true,
     }),
@@ -55,7 +55,6 @@ import * as redisStore from 'cache-manager-redis-store';
     CacheModule.registerAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        isGlobal: true,
         store: redisStore,
         ttl: 60,
         host: configService.getOrThrow<string>('REDIS_HOST'),
@@ -88,10 +87,6 @@ import * as redisStore from 'cache-manager-redis-store';
       provide: APP_FILTER,
       useClass: AllExceptionsFilter,
     },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor,
-    },
   ],
 })
 export class AppModule implements OnModuleInit {
@@ -100,7 +95,7 @@ export class AppModule implements OnModuleInit {
     consumer.apply(LogsMiddleware).forRoutes('*');
   }
   async onModuleInit() {
-    const user: CreateUserDto = {
+    const user: CreateAdminUserDto = {
       firstName: 'admin',
       password: 'Admin123!',
     };

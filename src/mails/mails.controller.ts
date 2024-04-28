@@ -3,7 +3,7 @@ import { MailsService } from './mails.service';
 import { CreateMailDto } from './dto/createMail.dto';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
-import { UserAuthGuard } from 'src/helpers/guards/userAuth.guard';
+import { UserAuthGuard } from '../helpers/guards/userAuth.guard';
 
 @ApiTags('mails')
 @Controller('mails')

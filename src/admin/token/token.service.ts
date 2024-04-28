@@ -33,7 +33,6 @@ export class AdminTokenService {
     const user = await this.tokenRepository.findOne({
       where: { user: { id: userId } },
     });
-
     if (user) {
       user.refreshToken = refreshToken;
       this.tokenRepository.save(user);
@@ -43,6 +42,7 @@ export class AdminTokenService {
       user: { id: userId },
       refreshToken: refreshToken,
     });
+
     await this.tokenRepository.save(token);
     return token;
   }
@@ -67,17 +67,16 @@ export class AdminTokenService {
       );
       return token as AdminTokenDto;
     } catch (err) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid token!');
     }
   }
 
   async deleteToken(refreshToken: string) {
-    const token = await this.tokenRepository.delete({
-      refreshToken: refreshToken,
+    const token = await this.findToken(refreshToken);
+    await this.tokenRepository.delete({
+      refreshToken: token.refreshToken,
     });
-    if (!token)
-      throw new UnauthorizedException('Token not found! Please register first');
-    return { message: 'Token deleted successfully!' };
+    return { message: 'Token deleted successfully.' };
   }
 
   async findToken(refreshToken: string) {
@@ -85,10 +84,11 @@ export class AdminTokenService {
       const token = await this.tokenRepository.findOne({
         where: { refreshToken: refreshToken },
       });
-
       return token;
     } catch (err) {
-      throw new UnauthorizedException('Token not found! Please register first');
+      throw new UnauthorizedException(
+        'Token not found! Please register first!',
+      );
     }
   }
 }

@@ -95,7 +95,6 @@ export class MinioService implements OnModuleInit {
   }
 
   async deleteFile(fileName: string) {
-    console.log(fileName);
     await this.minioClient.removeObject(this.bucketName, fileName);
   }
 

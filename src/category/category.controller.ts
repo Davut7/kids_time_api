@@ -30,18 +30,18 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { randomUUID } from 'crypto';
-import { imageFilter } from 'src/helpers/filters/imageFilter';
-import { ITransformedFile } from 'src/helpers/common/interfaces/fileTransform.interface';
 import { CategoryService } from './category.service';
 import { CategoryEntity } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/createCategory.dto';
 import { UpdateCategoryDto } from './dto/updateCategory.dto';
-import { ImageTransformer } from 'src/helpers/pipes/imageTransform.pipe';
 import { GetCategoriesQuery } from './dto/getCategories.dto';
 import { CreateCategoryAttributeDto } from './dto/createCategoryAttribute.dto';
 import { CategoryAttributesEntity } from './entities/categoryAttributes.entity';
 import { UpdateCategoryAttributeDto } from './dto/updateCategoryAttribute.dto';
-import { AdminAuthGuard } from 'src/helpers/guards/adminAuth.guard';
+import { AdminAuthGuard } from '../helpers/guards/adminAuth.guard';
+import { ImageTransformer } from '../helpers/pipes/imageTransform.pipe';
+import { ITransformedFile } from '../helpers/common/interfaces/fileTransform.interface';
+import { imageFilter } from '../helpers/filters/imageFilter';
 
 @ApiTags('category')
 @ApiBearerAuth()
@@ -51,14 +51,14 @@ export class CategoryController {
 
   @ApiOperation({
     summary: 'Create Category',
-    description: 'Create a new category',
+    description: 'Create a new category.',
   })
   @ApiCreatedResponse({
-    description: 'Category created successfully',
+    description: 'Category created successfully.',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'Category created successfully' },
+        message: { type: 'string', example: 'Category created successfully.' },
         category: { $ref: getSchemaPath(CategoryEntity) },
       },
     },
@@ -93,36 +93,36 @@ export class CategoryController {
     description: 'Retrieve a single category by its ID',
   })
   @ApiOkResponse({
-    description: 'Single category retrieved successfully',
+    description: 'Single category retrieved successfully.',
     type: CategoryEntity,
   })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'Category not found',
+    description: 'Category not found!',
   })
   @ApiParam({ name: 'categoryId', description: 'Category id' })
   @Get('/:categoryId')
   async getOneCategory(@Param('categoryId') categoryId: string) {
-    return this.categoryService.getOneCategory(categoryId);
+    return await this.categoryService.getOneCategory(categoryId);
   }
 
   @ApiOperation({
     summary: 'Update Category',
-    description: 'Update an existing category',
+    description: 'Update an existing category.',
   })
   @ApiOkResponse({
-    description: 'Category updated successfully',
+    description: 'Category updated successfully.',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'Category updated successfully' },
+        message: { type: 'string', example: 'Category updated successfully.' },
         category: { $ref: getSchemaPath(CategoryEntity) },
       },
     },
   })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'Category not found',
+    description: 'Category not found!',
   })
   @ApiParam({ name: 'id', description: 'Category id' })
   @UseGuards(AdminAuthGuard)
@@ -139,17 +139,17 @@ export class CategoryController {
     description: 'Delete an existing category',
   })
   @ApiOkResponse({
-    description: 'Category deleted successfully',
+    description: 'Category deleted successfully.',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'Category deleted successfully' },
+        message: { type: 'string', example: 'Category deleted successfully.' },
       },
     },
   })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'Category not found',
+    description: 'Category not found!',
   })
   @ApiParam({ name: 'categoryId', description: 'Category id' })
   @UseGuards(AdminAuthGuard)
@@ -162,13 +162,13 @@ export class CategoryController {
     summary: 'Upload Category Image',
     description: 'Upload an image for a category',
   })
-  @ApiOkResponse({ description: 'Category image uploaded successfully' })
+  @ApiOkResponse({ description: 'Category image uploaded successfully.' })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'Category not found',
+    description: 'Category not found!',
   })
   @ApiInternalServerErrorResponse({
-    description: 'Error while uploading category image',
+    description: 'Error while uploading category image!',
   })
   @ApiConsumes('multipart/form-data')
   @UseGuards(AdminAuthGuard)
@@ -199,20 +199,20 @@ export class CategoryController {
     description: 'Delete an image of a category',
   })
   @ApiOkResponse({
-    description: 'Category image uploaded successfully',
+    description: 'Category image uploaded successfully.',
     schema: {
       type: 'object',
       properties: {
         message: {
           type: 'string',
-          example: 'Category image deleted successfully',
+          example: 'Category image deleted successfully.',
         },
       },
     },
   })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'Category not found',
+    description: 'Category not found!',
   })
   @ApiInternalServerErrorResponse({
     description: 'Error while uploading category image',
@@ -238,7 +238,7 @@ export class CategoryController {
       properties: {
         message: {
           type: 'string',
-          example: 'Category attribute created successfully',
+          example: 'Category attribute created successfully.',
         },
         attribute: {
           type: 'object',
@@ -248,7 +248,7 @@ export class CategoryController {
     },
   })
   @ApiBadRequestResponse({
-    description: 'Category attribute with this language already exists',
+    description: 'Category attribute with this language already exists!',
   })
   @UseGuards(AdminAuthGuard)
   @Post('/attributes/:categoryId')
@@ -264,11 +264,11 @@ export class CategoryController {
     description: 'Update an existing attribute of a category',
   })
   @ApiOkResponse({
-    description: 'Category attribute updated successfully',
+    description: 'Category attribute updated successfully.',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'Attribute updated successfully' },
+        message: { type: 'string', example: 'Attribute updated successfully.' },
         attribute: {
           type: 'object',
           $ref: getSchemaPath(CategoryAttributesEntity),
@@ -277,7 +277,7 @@ export class CategoryController {
     },
   })
   @ApiNotFoundResponse({
-    description: 'Attribute not found',
+    description: 'Attribute not found!',
   })
   @UseGuards(AdminAuthGuard)
   @Patch('/:categoryId/attributes/:attributeId')
@@ -294,10 +294,10 @@ export class CategoryController {
     description: 'Delete an attribute of a category',
   })
   @ApiOkResponse({
-    description: 'Category attribute deleted successfully',
+    description: 'Category attribute deleted successfully.',
   })
   @ApiNotFoundResponse({
-    description: 'Attribute not found',
+    description: 'Attribute not found!',
   })
   @UseGuards(AdminAuthGuard)
   @Delete('/:categoryId/attributes/:attributeId')

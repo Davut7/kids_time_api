@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,10 +13,10 @@ import { TokenService } from '../token/token.service';
 import { UserLoginDto } from './dto/userLogin.dto';
 import { UserTokenDto } from '../token/dto/token.dto';
 import { UserRegistrationDto } from './dto/userRegistration.dto';
-import { generateRandomSixDigitNumber } from 'src/helpers/providers/generateVerificationCode';
-import { MailsService } from 'src/mails/mails.service';
 import { UserVerificationDto } from './dto/userVerification.dto';
 import { UserService } from '../user/user.service';
+import { MailsService } from '../../mails/mails.service';
+import { generateRandomSixDigitNumber } from '../../helpers/providers/generateVerificationCode';
 
 @Injectable()
 export class AuthService {
@@ -43,14 +44,16 @@ export class AuthService {
     await this.userRepository.save(user);
 
     await this.sendVerificationCode(user.id);
+
     return {
       message:
         'User registration successfully. Verification code sent to your email',
-      user: user,
+      user,
     };
   }
   async loginUser(dto: UserLoginDto) {
     const user = await this.userService.findOneByEmail(dto.email);
+    console.log(user);
     const isPasswordValid = await compare(dto.password, user.password);
     if (!isPasswordValid)
       throw new BadRequestException(`User password incorrect!`);
@@ -58,18 +61,19 @@ export class AuthService {
     const tokens = this.tokenService.generateTokens({
       ...new UserTokenDto(user),
     });
-
+    console.log(tokens);
     await this.tokenService.saveTokens(user.id, tokens.refreshToken);
 
     return {
-      message: 'User login successful!',
-      user: user,
+      message: 'User login successfully!',
+      user,
       ...tokens,
     };
   }
 
   async logoutUser(refreshToken: string) {
-    if (!refreshToken) throw new UnauthorizedException();
+    if (!refreshToken)
+      throw new UnauthorizedException('Refresh token not provided');
     await this.tokenService.deleteToken(refreshToken);
     return {
       message: 'User logged out!',
@@ -77,10 +81,12 @@ export class AuthService {
   }
 
   async refreshToken(refreshToken: string) {
-    if (!refreshToken) throw new UnauthorizedException();
+    if (!refreshToken)
+      throw new UnauthorizedException('Refresh token not provided');
     const tokenFromDB = await this.tokenService.findToken(refreshToken);
     const validToken = this.tokenService.validateRefreshToken(refreshToken);
-    if (!validToken && !tokenFromDB) throw new UnauthorizedException();
+    if (!validToken && !tokenFromDB)
+      throw new UnauthorizedException('Invalid token');
     const user = await this.userService.findUserById(validToken.id);
     const tokens = this.tokenService.generateTokens({
       ...new UserTokenDto(user),
@@ -93,9 +99,9 @@ export class AuthService {
   }
 
   async verifyUser(userId: string, dto: UserVerificationDto) {
+    console.log(userId);
     const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (user.isVerified)
-      throw new ConflictException('User is already verified');
+    if (!user) throw new NotFoundException('User not found');
     if (user.verificationCode !== dto.verificationCode)
       throw new BadRequestException('Wrong verification code');
     if (
@@ -103,7 +109,13 @@ export class AuthService {
       +process.env.USER_VERIFICATION_CODE_TIME
     )
       throw new BadRequestException(`Activation code expired!`);
+    console.log(user);
+    if (user.isVerified)
+      throw new ConflictException('User is already verified');
+
     user.isVerified = true;
+    await this.userRepository.save(user);
+
     const tokens = this.tokenService.generateTokens({
       ...new UserTokenDto(user),
     });
@@ -112,7 +124,7 @@ export class AuthService {
 
     return {
       message: 'User login successful!',
-      user: user,
+      user,
       ...tokens,
     };
   }
@@ -147,7 +159,6 @@ export class AuthService {
     const userFromDb = await this.userRepository.findOne({
       where: { email: user.email },
     });
-    console.log(userFromDb);
     if (userFromDb) {
       const tokens = this.tokenService.generateTokens({
         ...new UserTokenDto(user),
@@ -158,7 +169,7 @@ export class AuthService {
 
       return {
         message: 'User login successful!',
-        user: user,
+        user,
         ...tokens,
       };
     }
@@ -172,7 +183,7 @@ export class AuthService {
 
     return {
       message: 'User login successful!',
-      user: user,
+      user,
       ...tokens,
     };
   }

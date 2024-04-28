@@ -1,7 +1,12 @@
 import { PickType } from '@nestjs/swagger';
 import { AdminUserEntity } from '../entities/adminUser.entity';
+import { IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
 
-export class CreateUserDto extends PickType(AdminUserEntity, [
+export class CreateAdminUserDto extends PickType(AdminUserEntity, [
   'firstName',
-  'password',
-] as const) {}
+] as const) {
+  @IsNotEmpty()
+  @IsString()
+  @IsStrongPassword()
+  password: string;
+}

@@ -1,4 +1,4 @@
-import { AdminUserEntity } from 'src/admin/user/entities/adminUser.entity';
+import { AdminUserEntity } from '../../user/entities/adminUser.entity';
 
 export class AdminTokenDto {
   id: string;

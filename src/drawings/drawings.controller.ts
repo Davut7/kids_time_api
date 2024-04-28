@@ -33,21 +33,21 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { randomUUID } from 'crypto';
-import { ITransformedFile } from 'src/helpers/common/interfaces/fileTransform.interface';
-import { AdminAuthGuard } from 'src/helpers/guards/adminAuth.guard';
 import { DrawingsService } from './drawings.service';
 import { DrawingsEntity } from './entities/drawings.entity';
 import { CreateDrawingDto } from './dto/createDrawing.dto';
 import { GetDrawingsQuery } from './dto/getDrawings.dto';
 import { UpdateDrawingsDto } from './dto/updateDrawings.dto';
-import { PdfTransformer } from 'src/helpers/pipes/booksTransform.pipe';
 import { UploadDrawingsDto } from './dto/uploadDrawings.dto';
 import { DrawingsAttributesEntity } from './entities/drawingsAttributes.entity';
 import { CreateDrawingsAttributeDto } from './dto/createDrawingAttribute.dto';
 import { DownloadDrawingsQuery } from './dto/downloadDrawing.query';
-import { UserAuthGuard } from 'src/helpers/guards/userAuth.guard';
-import { CurrentUser } from 'src/helpers/common/decorators/currentUser.decorator';
-import { UserTokenDto } from 'src/client/token/dto/token.dto';
+import { AdminAuthGuard } from '../helpers/guards/adminAuth.guard';
+import { UserAuthGuard } from '../helpers/guards/userAuth.guard';
+import { CurrentUser } from '../helpers/common/decorators/currentUser.decorator';
+import { UserTokenDto } from '../client/token/dto/token.dto';
+import { PdfTransformer } from '../helpers/pipes/booksTransform.pipe';
+import { ITransformedFile } from '../helpers/common/interfaces/fileTransform.interface';
 
 @ApiTags('drawings')
 @ApiBearerAuth()
@@ -57,18 +57,18 @@ export class DrawingsController {
 
   @ApiOperation({ summary: 'Create a new drawing' })
   @ApiCreatedResponse({
-    description: 'Drawing created successfully',
+    description: 'Drawing created successfully.',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'Drawing created successfully' },
+        message: { type: 'string', example: 'Drawing created successfully.' },
         drawings: { $ref: getSchemaPath(DrawingsEntity) },
       },
     },
   })
   @ApiConflictResponse({
     type: ConflictException,
-    description: 'Drawing with this title already exists',
+    description: 'Drawing with this title already exists!',
   })
   @UseGuards(AdminAuthGuard)
   @Post(':categoryId')
@@ -81,7 +81,7 @@ export class DrawingsController {
 
   @ApiOperation({ summary: 'Get drawings' })
   @ApiOkResponse({
-    description: 'Drawings returned successfully',
+    description: 'Drawings returned successfully.',
     schema: {
       type: 'object',
       properties: {
@@ -97,12 +97,12 @@ export class DrawingsController {
 
   @ApiOperation({ summary: 'Get a single drawing' })
   @ApiOkResponse({
-    description: 'Single drawing retrieved successfully',
+    description: 'Single drawing retrieved successfully.',
     type: DrawingsEntity,
   })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'Drawing not found',
+    description: 'Drawing not found!',
   })
   @ApiParam({ name: 'drawingId', description: 'drawing id' })
   @UseGuards(UserAuthGuard)
@@ -116,18 +116,18 @@ export class DrawingsController {
 
   @ApiOperation({ summary: 'Update a drawing' })
   @ApiOkResponse({
-    description: 'Drawing updated successfully',
+    description: 'Drawing updated successfully.',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'Drawing updated successfully' },
+        message: { type: 'string', example: 'Drawing updated successfully.' },
         drawings: { $ref: getSchemaPath(DrawingsEntity) },
       },
     },
   })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'Drawing not found',
+    description: 'Drawing not found!',
   })
   @ApiParam({ name: 'drawingId', description: 'drawing id' })
   @UseGuards(AdminAuthGuard)
@@ -141,17 +141,17 @@ export class DrawingsController {
 
   @ApiOperation({ summary: 'Delete a drawing' })
   @ApiOkResponse({
-    description: 'Drawing deleted successfully',
+    description: 'Drawing deleted successfully.',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'Drawing deleted successfully' },
+        message: { type: 'string', example: 'Drawing deleted successfully!' },
       },
     },
   })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'Drawing not found',
+    description: 'Drawing not found!',
   })
   @ApiParam({ name: 'drawingId', description: 'drawing id' })
   @UseGuards(AdminAuthGuard)
@@ -161,10 +161,10 @@ export class DrawingsController {
   }
 
   @ApiOperation({ summary: 'Upload media for a drawing' })
-  @ApiOkResponse({ description: 'Drawing uploaded successfully' })
+  @ApiOkResponse({ description: 'Drawing uploaded successfully.' })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'Drawings not found',
+    description: 'Drawings not found!',
   })
   @ApiInternalServerErrorResponse({
     description: 'Error while uploading drawing',
@@ -194,22 +194,22 @@ export class DrawingsController {
     return this.drawingsService.uploadMedia(file, drawingId, dto);
   }
 
-  @ApiOperation({ summary: 'Delete media of a drawing' })
+  @ApiOperation({ summary: 'Delete media of a drawing.' })
   @ApiOkResponse({
-    description: 'Drawings media uploaded successfully',
+    description: 'Drawings media uploaded successfully.',
     schema: {
       type: 'object',
       properties: {
         message: {
           type: 'string',
-          example: 'Drawings media deleted successfully',
+          example: 'Drawings media deleted successfully.',
         },
       },
     },
   })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'Drawings not found',
+    description: 'Drawings not found!',
   })
   @ApiInternalServerErrorResponse({
     description: 'Error while uploading drawings',
@@ -224,15 +224,15 @@ export class DrawingsController {
     return this.drawingsService.deleteMedia(drawingId, mediaId);
   }
 
-  @ApiOperation({ summary: 'Create an attribute for a drawing' })
+  @ApiOperation({ summary: 'Create an attribute for a drawing.' })
   @ApiCreatedResponse({
-    description: 'Drawings attribute created successfully',
+    description: 'Drawings attribute created successfully.',
     schema: {
       type: 'object',
       properties: {
         message: {
           type: 'string',
-          example: 'Drawings attribute created successfully',
+          example: 'Drawings attribute created successfully.',
         },
         attribute: {
           type: 'object',
@@ -242,7 +242,7 @@ export class DrawingsController {
     },
   })
   @ApiBadRequestResponse({
-    description: 'Drawings attribute with this language already exists',
+    description: 'Drawings attribute with this language already exists!',
   })
   @UseGuards(AdminAuthGuard)
   @Post('/attributes/:drawingId')
@@ -253,13 +253,13 @@ export class DrawingsController {
     return this.drawingsService.createAttribute(dto, drawingId);
   }
 
-  @ApiOperation({ summary: 'Update an attribute for a drawing' })
+  @ApiOperation({ summary: 'Update an attribute for a drawing.' })
   @ApiOkResponse({
-    description: 'Drawings attribute updated successfully',
+    description: 'Drawings attribute updated successfully.',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'Attribute updated successfully' },
+        message: { type: 'string', example: 'Attribute updated successfully.' },
         attribute: {
           type: 'object',
           $ref: getSchemaPath(DrawingsAttributesEntity),
@@ -268,7 +268,7 @@ export class DrawingsController {
     },
   })
   @ApiNotFoundResponse({
-    description: 'Attribute not found',
+    description: 'Attribute not found!',
   })
   @UseGuards(AdminAuthGuard)
   @Patch('/:drawingId/attributes/:attributeId')
@@ -280,12 +280,12 @@ export class DrawingsController {
     return this.drawingsService.updateAttribute(drawingId, attributeId, dto);
   }
 
-  @ApiOperation({ summary: 'Delete an attribute for a drawing' })
+  @ApiOperation({ summary: 'Delete an attribute for a drawing.' })
   @ApiOkResponse({
-    description: 'Drawings attribute deleted successfully',
+    description: 'Drawings attribute deleted successfully.',
   })
   @ApiNotFoundResponse({
-    description: 'Attribute not found',
+    description: 'Attribute not found!',
   })
   @UseGuards(AdminAuthGuard)
   @Delete('/:drawingId/attributes/:attributeId')
@@ -296,14 +296,14 @@ export class DrawingsController {
     return this.drawingsService.deleteAttribute(drawingId, attributeId);
   }
 
-  @ApiOperation({ summary: 'Download a drawing' })
+  @ApiOperation({ summary: 'Download a drawing.' })
   @ApiOkResponse({
     type: String,
-    description: 'Returns link for downloading drawing',
+    description: 'Returns link for downloading drawing.',
   })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'Drawing not found',
+    description: 'Drawing not found!',
   })
   @Get('/:drawingId/download')
   async downloadDrawing(

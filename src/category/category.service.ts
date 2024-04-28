@@ -6,8 +6,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { ITransformedFile } from 'src/helpers/common/interfaces/fileTransform.interface';
-import { MediaService } from 'src/media/media.service';
 import { unlink } from 'fs/promises';
 import { CategoryEntity } from './entities/category.entity';
 import { CategoryAttributesEntity } from './entities/categoryAttributes.entity';
@@ -15,8 +13,10 @@ import { CreateCategoryDto } from './dto/createCategory.dto';
 import { UpdateCategoryDto } from './dto/updateCategory.dto';
 import { GetCategoriesQuery } from './dto/getCategories.dto';
 import { CreateCategoryAttributeDto } from './dto/createCategoryAttribute.dto';
-import { LanguageEnum } from 'src/helpers/constants';
 import { UpdateCategoryAttributeDto } from './dto/updateCategoryAttribute.dto';
+import { MediaService } from '../media/media.service';
+import { ITransformedFile } from '../helpers/common/interfaces/fileTransform.interface';
+import { LanguageEnum } from '../helpers/constants/languageEnum';
 
 @Injectable()
 export class CategoryService {
@@ -35,7 +35,7 @@ export class CategoryService {
     await this.categoryRepository.save(category);
 
     return {
-      message: 'Category created successfully',
+      message: 'Category created successfully.',
       category: category,
     };
   }
@@ -70,19 +70,19 @@ export class CategoryService {
       .leftJoinAndSelect('categories.attributes', 'attributes')
       .where('categories.id = :categoryId', { categoryId })
       .getOne();
-
-    return category;
+    if (!category) throw new NotFoundException('Category not found!');
+    return { category };
   }
 
   async updateCategory(categoryId: string, dto: UpdateCategoryDto) {
-    const category = await this.getOneCategory(categoryId);
-    if (!category) throw new NotFoundException('category not found');
+    const category = await this.findCategoryById(categoryId);
+
     Object.assign(category, dto);
 
     await this.categoryRepository.save(category);
 
     return {
-      message: 'Category updated successfully',
+      message: 'Category updated successfully.',
       category: category,
     };
   }
@@ -91,8 +91,8 @@ export class CategoryService {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
     await queryRunner.connect();
-    const category = await this.getOneCategory(categoryId);
-    if (!category) throw new NotFoundException('Category not found');
+    const category = await this.findCategoryById(categoryId);
+    console.log(category);
     let categoryImageIds: string[] = [];
     for (const media of category.medias) {
       categoryImageIds.push(media.id);
@@ -100,7 +100,7 @@ export class CategoryService {
     try {
       await this.categoryRepository.delete(category.id);
       return {
-        message: 'Category deleted successfully',
+        message: 'Category deleted successfully.',
       };
     } catch (error) {
       queryRunner.rollbackTransaction();
@@ -115,7 +115,7 @@ export class CategoryService {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
     await queryRunner.connect();
-    await this.getOneCategory(categoryId);
+    await this.findCategoryById(categoryId);
     let uploadedFileId: string;
     try {
       const mediaId = await this.mediaService.createFileMedia(
@@ -127,7 +127,7 @@ export class CategoryService {
       uploadedFileId = mediaId;
       await queryRunner.commitTransaction();
       return {
-        message: 'Images uploaded successfully',
+        message: 'Category image uploaded successfully.',
       };
     } catch (error) {
       queryRunner.rollbackTransaction();
@@ -140,7 +140,7 @@ export class CategoryService {
   }
 
   async deleteImage(categoryId: string, mediaId: string) {
-    await this.getOneCategory(categoryId);
+    await this.findCategoryById(categoryId);
     await this.mediaService.getOneMedia(mediaId);
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
@@ -149,7 +149,7 @@ export class CategoryService {
       await this.mediaService.deleteOneMedia(mediaId, queryRunner);
       await queryRunner.commitTransaction();
       return {
-        message: 'Image deleted successfully',
+        message: 'Image deleted successfully.',
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -163,7 +163,7 @@ export class CategoryService {
     const candidate = await this.isAttributeUnique(dto.language, categoryId);
     if (candidate)
       throw new ConflictException(
-        'Category attribute with this language already exists',
+        'Category attribute with this language already exists!',
       );
     const attribute = this.categoryAttributesRepository.create({
       ...dto,
@@ -171,7 +171,7 @@ export class CategoryService {
     });
     await this.categoryAttributesRepository.save(attribute);
     return {
-      message: 'Category attribute with this language',
+      message: 'Category attribute created successfully.',
       attribute,
     };
   }
@@ -188,7 +188,7 @@ export class CategoryService {
     await this.categoryAttributesRepository.save(attribute);
 
     return {
-      message: 'Attribute updated successfully',
+      message: 'Attribute updated successfully.',
       attribute,
     };
   }
@@ -199,7 +199,7 @@ export class CategoryService {
     await this.categoryAttributesRepository.delete(attribute.id);
 
     return {
-      message: 'Attribute deleted  successfully',
+      message: 'Attribute deleted successfully.',
     };
   }
 
@@ -207,7 +207,7 @@ export class CategoryService {
     const attribute = await this.categoryAttributesRepository.findOne({
       where: { id: attributeId, categoryId: categoryId },
     });
-    if (!attribute) throw new NotFoundException('Attribute not found');
+    if (!attribute) throw new NotFoundException('Attribute not found!');
     return attribute;
   }
 
@@ -221,5 +221,16 @@ export class CategoryService {
       .getOne();
 
     return attribute;
+  }
+
+  async findCategoryById(categoryId: string) {
+    const category = await this.categoryRepository
+      .createQueryBuilder('categories')
+      .leftJoinAndSelect('categories.medias', 'medias')
+      .leftJoinAndSelect('categories.attributes', 'attributes')
+      .where('categories.id = :categoryId', { categoryId })
+      .getOne();
+    if (!category) throw new NotFoundException('Category not found!');
+    return category;
   }
 }

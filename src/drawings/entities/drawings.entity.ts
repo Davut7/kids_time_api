@@ -5,6 +5,7 @@ import { BaseEntity } from '../../helpers/entities/baseEntity.entity';
 import { CategoryEntity } from '../../category/entities/category.entity';
 import { UserFavoritesEntity } from '../../favorites/entities/favorites.entity';
 import { MediaEntity } from '../../media/entities/mediaEntity';
+import { IsInt, IsNotEmpty } from 'class-validator';
 
 @Entity({ name: 'drawings' })
 @Index('IDX_DRAWINGS_CATEGORY_ID', ['categoryId'])
@@ -14,6 +15,8 @@ export class DrawingsEntity extends BaseEntity {
     name: 'title',
     nullable: false,
   })
+    @IsInt()
+    @IsNotEmpty()
   @Column({ type: 'int', nullable: false })
   requiredLevel: number;
 

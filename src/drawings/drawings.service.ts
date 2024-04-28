@@ -7,10 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { ITransformedFile } from 'src/helpers/common/interfaces/fileTransform.interface';
-import { MediaService } from 'src/media/media.service';
 import { unlink } from 'fs/promises';
-import { LanguageEnum } from 'src/helpers/constants';
 import { DrawingsEntity } from './entities/drawings.entity';
 import { DrawingsAttributesEntity } from './entities/drawingsAttributes.entity';
 import { CreateDrawingDto } from './dto/createDrawing.dto';
@@ -19,10 +16,12 @@ import { UpdateDrawingsDto } from './dto/updateDrawings.dto';
 import { CreateDrawingsAttributeDto } from './dto/createDrawingAttribute.dto';
 import { UpdateDrawingsAttributeDto } from './dto/updateDrawingsAttribute.dto';
 import { UploadDrawingsDto } from './dto/uploadDrawings.dto';
-import { CategoryEntity } from 'src/category/entities/category.entity';
 import { DownloadDrawingsQuery } from './dto/downloadDrawing.query';
-import { UserTokenDto } from 'src/client/token/dto/token.dto';
-
+import { MediaService } from '../media/media.service';
+import { CategoryEntity } from '../category/entities/category.entity';
+import { LanguageEnum } from '../helpers/constants/languageEnum';
+import { UserTokenDto } from '../client/token/dto/token.dto';
+import { ITransformedFile } from '../helpers/common/interfaces/fileTransform.interface';
 @Injectable()
 export class DrawingsService {
   constructor(
@@ -40,7 +39,7 @@ export class DrawingsService {
     const category = await this.categoryRepository.findOne({
       where: { id: categoryId },
     });
-    if (!category) throw new NotFoundException('Category not found');
+    if (!category) throw new NotFoundException('Category not found!');
     const drawing = this.drawingsRepository.create({
       ...dto,
       categoryId: categoryId,
@@ -49,8 +48,8 @@ export class DrawingsService {
     await this.drawingsRepository.save(drawing);
 
     return {
-      message: 'drawings created successfully',
-      drawings: drawing,
+      message: 'Drawing created successfully.',
+      drawing: drawing,
     };
   }
 
@@ -87,9 +86,9 @@ export class DrawingsService {
       .leftJoinAndSelect('drawings.attributes', 'attributes')
       .where('drawings.id = :drawingId', { drawingId })
       .getOne();
+    if (!drawing) throw new NotFoundException('Drawing not found!');
     if (drawing.requiredLevel > currentUser?.level)
-      throw new ForbiddenException('Your level is too low');
-    if (!drawing) throw new NotFoundException('Drawings not found');
+      throw new ForbiddenException('Your level is lower than required!');
     return drawing;
   }
 
@@ -100,7 +99,7 @@ export class DrawingsService {
     await this.drawingsRepository.save(drawing);
 
     return {
-      message: 'Drawing updated successfully',
+      message: 'Drawing updated successfully.',
       drawing: drawing,
     };
   }
@@ -109,7 +108,7 @@ export class DrawingsService {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
     await queryRunner.connect();
-    const drawing = await this.getOneDrawing(drawingId);
+    const drawing = await this.findDrawingById(drawingId);
     let drawingMediaIds: string[] = [];
     for (const media of drawing.medias) {
       drawingMediaIds.push(media.id);
@@ -117,7 +116,7 @@ export class DrawingsService {
     try {
       await this.drawingsRepository.delete(drawing.id);
       return {
-        message: 'Drawing deleted successfully',
+        message: 'Drawing deleted successfully.',
       };
     } catch (error) {
       queryRunner.rollbackTransaction();
@@ -136,11 +135,13 @@ export class DrawingsService {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
     await queryRunner.connect();
-    const drawing = await this.getOneDrawing(drawingId);
+    const drawing = await this.findDrawingById(drawingId);
     let uploadedFileId: string;
     for (const media of drawing.medias) {
       if (media.mediaLng === dto.lng)
-        throw new ConflictException('You already have a book in this language');
+        throw new ConflictException(
+          'You already have a book in this language!',
+        );
     }
     try {
       const mediaId = await this.mediaService.createFileMedia(
@@ -153,7 +154,7 @@ export class DrawingsService {
       uploadedFileId = mediaId;
       await queryRunner.commitTransaction();
       return {
-        message: 'Book uploaded successfully',
+        message: 'Drawings uploaded successfully.',
       };
     } catch (error) {
       queryRunner.rollbackTransaction();
@@ -166,7 +167,7 @@ export class DrawingsService {
   }
 
   async deleteMedia(drawingId: string, mediaId: string) {
-    await this.getOneDrawing(drawingId);
+    await this.findDrawingById(drawingId);
     await this.mediaService.getOneMedia(mediaId);
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
@@ -175,7 +176,7 @@ export class DrawingsService {
       await this.mediaService.deleteOneMedia(mediaId, queryRunner);
       await queryRunner.commitTransaction();
       return {
-        message: 'Drawing deleted successfully',
+        message: 'Drawing deleted successfully.',
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -189,7 +190,7 @@ export class DrawingsService {
     const candidate = await this.isAttributeUnique(dto.language, drawingId);
     if (candidate)
       throw new ConflictException(
-        'drawings attribute with this language already exists',
+        'Drawings attribute with this language already exists!',
       );
     const attribute = this.drawingsAttributesRepository.create({
       ...dto,
@@ -197,7 +198,7 @@ export class DrawingsService {
     });
     await this.drawingsAttributesRepository.save(attribute);
     return {
-      message: 'drawings attribute with this language',
+      message: 'Drawing attribute created successfully.',
       attribute,
     };
   }
@@ -214,7 +215,7 @@ export class DrawingsService {
     await this.drawingsAttributesRepository.save(attribute);
 
     return {
-      message: 'Attribute updated successfully',
+      message: 'Attribute updated successfully.',
       attribute,
     };
   }
@@ -225,7 +226,7 @@ export class DrawingsService {
     await this.drawingsAttributesRepository.delete(attribute.id);
 
     return {
-      message: 'Attribute deleted  successfully',
+      message: 'Attribute deleted successfully.',
     };
   }
 
@@ -233,7 +234,7 @@ export class DrawingsService {
     const attribute = await this.drawingsAttributesRepository.findOne({
       where: { id: attributeId, drawingId: drawingId },
     });
-    if (!attribute) throw new NotFoundException('Attribute not found');
+    if (!attribute) throw new NotFoundException('Attribute not found!');
     return attribute;
   }
 
@@ -253,7 +254,7 @@ export class DrawingsService {
     drawingId: string,
     drawingLanguage: DownloadDrawingsQuery,
   ) {
-    await this.getOneDrawing(drawingId);
+    await this.findDrawingById(drawingId);
     const media = await this.mediaService.getMediaByLng(
       'drawingId',
       drawingId,
@@ -261,5 +262,14 @@ export class DrawingsService {
     );
 
     return media;
+  }
+
+  async findDrawingById(drawingId: string) {
+    const drawing = await this.drawingsRepository.findOne({
+      where: { id: drawingId },
+      relations: { medias: true },
+    });
+    if (!drawing) throw new NotFoundException('Drawing not found!');
+    return drawing;
   }
 }

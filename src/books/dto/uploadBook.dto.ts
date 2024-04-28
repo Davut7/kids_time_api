@@ -1,7 +1,8 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty } from 'class-validator';
-import { PageOptionsDto } from 'src/helpers/common/dto/page.dto';
-import { LanguageEnum } from 'src/helpers/constants';
+import { LanguageEnum } from '../../helpers/constants/languageEnum';
+import { PageOptionsDto } from '../../helpers/common/dto/page.dto';
+
 
 export class UploadBookDto extends PickType(PageOptionsDto, ['lng'] as const) {
   @ApiProperty({

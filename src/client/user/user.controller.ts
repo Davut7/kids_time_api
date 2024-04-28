@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -21,20 +22,20 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
 import { UserEntity } from './entities/user.entity';
 import { UserTokenDto } from '../token/dto/token.dto';
 import { UserService } from './user.service';
-import { UserAuthGuard } from 'src/helpers/guards/userAuth.guard';
 import { AddExpDto } from './dto/addExp.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { randomUUID } from 'crypto';
-import { ITransformedFile } from 'src/helpers/common/interfaces/fileTransform.interface';
-import { ImageTransformer } from 'src/helpers/pipes/imageTransform.pipe';
-import { imageFilter } from 'src/helpers/filters/imageFilter';
+import { UserAuthGuard } from '../../helpers/guards/userAuth.guard';
+import { ImageTransformer } from '../../helpers/pipes/imageTransform.pipe';
+import { imageFilter } from '../../helpers/filters/imageFilter';
+import { ITransformedFile } from '../../helpers/common/interfaces/fileTransform.interface';
+import { GetReadBooksDto } from './dto/getReadBooks.dto';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -58,7 +59,6 @@ export class UserController {
     description: 'Successfully adds experience points to the user.',
   })
   @Patch('/add-exp')
-  @UseGuards(UserAuthGuard)
   async addExp(
     @Body() dto: AddExpDto,
     @CurrentUser() currentUser: UserTokenDto,
@@ -69,15 +69,14 @@ export class UserController {
   @ApiOperation({ summary: 'Update user' })
   @ApiOkResponse({
     type: UserEntity,
-    description: 'User by id found',
+    description: 'Update user data',
   })
-  @ApiParam({ name: 'id', description: 'User ID' })
-  @Patch(':id')
+  @Patch('')
   async updateUser(
-    @Param('id', ParseUUIDPipe) userId: string,
+    @CurrentUser() currentUser: UserTokenDto,
     @Body() userUpdateDto: UserUpdateDto,
   ) {
-    return this.userService.updateUserById(userId, userUpdateDto);
+    return this.userService.updateUser(currentUser, userUpdateDto);
   }
 
   @ApiOperation({ summary: 'Delete user' })
@@ -92,7 +91,7 @@ export class UserController {
   })
   @Delete('')
   async deleteUser(@CurrentUser() currentUser: UserTokenDto) {
-    return this.userService.deleteUserById(currentUser);
+    return this.userService.deleteUser(currentUser);
   }
 
   @ApiOperation({ summary: 'Upload user image' })
@@ -105,7 +104,6 @@ export class UserController {
     description: 'Error while uploading drawing',
   })
   @ApiConsumes('multipart/form-data')
-  @UseGuards(UserAuthGuard)
   @Post('/images')
   @UseInterceptors(
     FileInterceptor('image', {
@@ -126,5 +124,52 @@ export class UserController {
     @CurrentUser() currentUser: UserTokenDto,
   ) {
     return this.userService.uploadImage(image, currentUser);
+  }
+  @ApiOperation({ summary: 'Add book to user read list' })
+  @ApiOkResponse({
+    description: 'Book added to user read list',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Book added to read list' },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'User or book not found',
+  })
+  @Post('/read-list/:bookId')
+  async addBookToReadList(
+    @CurrentUser() currentUser: UserTokenDto,
+    @Param('bookId', ParseUUIDPipe) bookId: string,
+  ) {
+    await this.userService.addBookToReadList(currentUser, bookId);
+    return { message: 'Book added to read list' };
+  }
+
+  @ApiOperation({ summary: 'Get books read by the current user' })
+  @ApiOkResponse({
+    description: 'Books read by the current user returned successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        books: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {},
+          },
+        },
+        booksCount: { type: 'number', example: 5 },
+      },
+    },
+  })
+  @Get('/read-list')
+  async userReadBooks(
+    @CurrentUser() currentUser: UserTokenDto,
+    @Query() query: GetReadBooksDto,
+  ) {
+    const result = await this.userService.userReadBooks(currentUser, query);
+    return result;
   }
 }

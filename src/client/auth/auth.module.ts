@@ -5,12 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from '../user/entities/user.entity';
 import { TokenEntity } from '../token/entities/token.entity';
 import { TokenModule } from '../token/token.module';
-import { MailsModule } from 'src/mails/mails.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { UserModule } from '../user/user.module';
 import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from './strategies/google.strategy';
-import { RedisModule } from 'src/redis/redis.module';
+import { RedisModule } from '../../redis/redis.module';
+import { MailsModule } from '../../mails/mails.module';
 
 @Module({
   imports: [
@@ -29,7 +29,7 @@ import { RedisModule } from 'src/redis/redis.module';
       {
         name: 'login',
         ttl: 3600,
-        limit: 5,
+        limit: 10,
       },
     ]),
   ],

@@ -2,8 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserFavoritesEntity } from './entities/favorites.entity';
-import { UserTokenDto } from 'src/client/token/dto/token.dto';
 import { GetFavoritesQuery } from './dto/getFavorites.query';
+import { UserTokenDto } from '../client/token/dto/token.dto';
+import { FavoriteTypeEnum } from '../helpers/constants/favoriteType.enum';
 
 @Injectable()
 export class FavoritesService {
@@ -15,18 +16,34 @@ export class FavoritesService {
   async getFavorites(currentUser: UserTokenDto, query: GetFavoritesQuery) {
     const { take = 10, page = 1 } = query;
 
-    const favorites = await this.favoritesRepository
+    const favoritesQuery = this.favoritesRepository
       .createQueryBuilder('favorites')
-      .leftJoinAndSelect('favorites.book', 'book')
-      .leftJoinAndSelect('favorites.drawing', 'drawing')
-      .leftJoinAndSelect('drawing.medias', 'drawingMedias')
-      .leftJoinAndSelect('drawing.attributes', 'drawingAttributes')
-      .leftJoinAndSelect('book.medias', 'bookMedias')
-      .leftJoinAndSelect('book.attributes', 'bookAttributes')
-      .where('favorites.userId = :userId', { userId: currentUser.id })
+      .where('favorites.userId = :userId', { userId: currentUser.id });
+
+    if (query.favoriteType) {
+      favoritesQuery
+        .leftJoinAndSelect(
+          `favorites.${query.favoriteType}`,
+          `${query.favoriteType}`,
+        )
+        .leftJoinAndSelect(
+          `${query.favoriteType}.medias`,
+          `${query.favoriteType}Medias`,
+        )
+        .leftJoinAndSelect(
+          `${query.favoriteType}.attributes`,
+          `${query.favoriteType}Attributes`,
+        );
+      favoritesQuery.andWhere('favorites.favoriteType = :favoriteType', {
+        favoriteType: query.favoriteType,
+      });
+    }
+
+    const favorites = await favoritesQuery
       .take(take)
       .skip((page - 1) * take)
       .getManyAndCount();
+
     return favorites;
   }
 
@@ -38,6 +55,7 @@ export class FavoritesService {
     const favoriteBook = this.favoritesRepository.create({
       userId: currentUser.id,
       bookId: bookId,
+      favoriteType: FavoriteTypeEnum.book,
     });
 
     await this.favoritesRepository.save(favoriteBook);
@@ -52,12 +70,13 @@ export class FavoritesService {
       where: { userId: currentUser.id, drawingId: drawingId },
     });
     if (drawing) throw new NotFoundException('Drawing already in favorites');
-    const favoriteBook = this.favoritesRepository.create({
+    const favoriteDrawing = this.favoritesRepository.create({
       userId: currentUser.id,
       drawingId: drawingId,
+      favoriteType: FavoriteTypeEnum.drawing,
     });
 
-    await this.favoritesRepository.save(favoriteBook);
+    await this.favoritesRepository.save(favoriteDrawing);
 
     return {
       message: 'Drawing added to favorites',

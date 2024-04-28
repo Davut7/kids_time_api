@@ -46,8 +46,8 @@ async function bootstrap() {
     dsn: process.env.SENTRY_DNS,
   });
   app.useGlobalInterceptors(
-    new ClassSerializerInterceptor(app.get(Reflector)),
     new TimeoutInterceptor(),
+    new ClassSerializerInterceptor(app.get(Reflector)),
   );
   app.setGlobalPrefix('api');
   await app.listen(port, () => {

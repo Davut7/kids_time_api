@@ -1,5 +1,6 @@
 import { PickType } from '@nestjs/swagger';
-import { UserEntity } from 'src/client/user/entities/user.entity';
+import { UserEntity } from '../../user/entities/user.entity';
+
 
 export class UserRegistrationDto extends PickType(UserEntity, [
   'password',

@@ -23,8 +23,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const errorResponse = exception.getResponse();
-      errorMessage =
-        `${exception.message}. ` + JSON.stringify(errorResponse, null, 2);
+      if (typeof errorResponse === 'object' && errorResponse['message']) {
+        errorMessage = Array.isArray(errorResponse['message'])
+          ? errorResponse['message'].join(', ')
+          : errorResponse['message'];
+      } else {
+        errorMessage = `${exception.message}`;
+      }
     } else {
       errorMessage =
         exception instanceof Error
@@ -33,11 +38,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
-    const errorResponse = this.getErrorResponse(
-      status,
-      exception.message,
-      request,
-    );
+    const errorResponse = this.getErrorResponse(status, errorMessage, request);
     this.getErrorLog(errorResponse, request);
 
     response.status(status).json(errorResponse);
@@ -49,7 +50,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     request: Request,
   ): CustomHttpExceptionResponse => ({
     statusCode: status,
-    message: `${errorMessage} ${status === 404 ? `(маршрут не найден)` : ''}`,
+    message: errorMessage,
     path: request.url,
     method: request.method,
     timeStamp: new Date(),

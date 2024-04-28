@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/swagger';
-import { AdminUserEntity } from '../entities/adminUser.entity';
+import { CreateAdminUserDto } from './createUser.dto';
 
-export class UserUpdateDto extends PartialType(AdminUserEntity) {}
+export class UserUpdateDto extends PartialType(CreateAdminUserDto) {}

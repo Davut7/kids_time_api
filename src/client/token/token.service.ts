@@ -71,28 +71,26 @@ export class TokenService {
       );
       return token as UserTokenDto;
     } catch (err) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid token');
     }
   }
 
   async deleteToken(refreshToken: string) {
-    const token = await this.tokenRepository.delete({
-      refreshToken: refreshToken,
+    const token = await this.findToken(refreshToken);
+    await this.tokenRepository.delete({
+      refreshToken: token.refreshToken,
     });
-    if (!token)
-      throw new UnauthorizedException('Token not found! Please register first');
     return { message: 'Token deleted successfully!' };
   }
 
   async findToken(refreshToken: string) {
-    try {
-      const token = await this.tokenRepository.findOne({
-        where: { refreshToken: refreshToken },
-      });
-
-      return token;
-    } catch (err) {
+    console.log(refreshToken);
+    const token = await this.tokenRepository.findOne({
+      where: { refreshToken: refreshToken },
+    });
+    console.log(token)
+    if (!token)
       throw new UnauthorizedException('Token not found! Please register first');
-    }
+    return token;
   }
 }

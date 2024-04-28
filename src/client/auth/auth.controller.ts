@@ -25,15 +25,15 @@ import {
   ApiUnauthorizedResponse,
   getSchemaPath,
 } from '@nestjs/swagger';
-import { RedisService } from 'src/redis/redis.service';
 import { UserEntity } from '../user/entities/user.entity';
 import { UserLoginDto } from './dto/userLogin.dto';
 import { UserRegistrationDto } from './dto/userRegistration.dto';
 import { UserVerificationDto } from './dto/userVerification.dto';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
-import { GoogleAuthGuard } from 'src/helpers/guards/googleAuth.guard';
 import * as url from 'url';
 import { ConfigService } from '@nestjs/config';
+import { RedisService } from '../../redis/redis.service';
+import { GoogleAuthGuard } from '../../helpers/guards/googleAuth.guard';
 
 @ApiTags('auth')
 @Controller('/auth')
@@ -64,7 +64,7 @@ export class AuthController {
     description: 'User with email already exists',
   })
   @Post('registration')
-  async register(@Body() registrationDto: UserRegistrationDto, @Res() res) {
+  async register(@Body() registrationDto: UserRegistrationDto) {
     return this.authService.registerUser(registrationDto);
   }
 
@@ -142,7 +142,7 @@ export class AuthController {
       httpOnly: true,
     });
     res.status(200).json({
-      message: 'System user login successfully!',
+      message: 'User login successfully',
       user: user.user,
       accessToken: user.accessToken,
       refreshToken: user.refreshToken,

@@ -1,11 +1,11 @@
+import { AdminTokenService } from '../../admin/token/token.service';
+import { RedisService } from '../../redis/redis.service';
 import {
   CanActivate,
   ExecutionContext,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { RedisService } from 'src/redis/redis.service';
-import { AdminTokenService } from 'src/admin/token/token.service';
 
 @Injectable()
 export class AdminAuthGuard implements CanActivate {
@@ -28,13 +28,12 @@ export class AdminAuthGuard implements CanActivate {
       }
 
       const userToken = this.tokenService.validateAccessToken(token);
-
       const tokenInBlackList = await this.redisService.getRedisToken(token);
       if (tokenInBlackList) throw new UnauthorizedException('Token is invalid');
       req.currentUser = userToken;
       return true;
     } catch (err: any) {
-      throw new UnauthorizedException('User unauthorized'+ " " + err.message);
+      throw new UnauthorizedException('User unauthorized' + ' ' + err.message);
     }
   }
 }

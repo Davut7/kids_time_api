@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminUserEntity } from './entities/adminUser.entity';
 import { AdminTokenModule } from '../token/token.module';
 import { AdminTokenEntity } from '../token/entities/token.entity';
-import { RedisModule } from 'src/redis/redis.module';
+import { RedisModule } from '../../redis/redis.module';
 
 @Module({
   imports: [

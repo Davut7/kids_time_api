@@ -18,19 +18,19 @@ export abstract class BaseEntity {
     type: 'timestamp with time zone',
     nullable: true,
   })
-  createdAt!: Date;
+  createdAt?: Date;
 
   @Expose()
   @UpdateDateColumn({
     type: 'timestamp with time zone',
     nullable: true,
   })
-  updatedAt!: Date;
+  updatedAt?: Date;
 
   @Expose()
   @DeleteDateColumn({
     type: 'timestamp with time zone',
     nullable: true,
   })
-  deletedAt!: Date;
+  deletedAt?: Date;
 }

@@ -16,10 +16,10 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import { FavoritesService } from './favorites.service';
-import { UserTokenDto } from 'src/client/token/dto/token.dto';
 import { GetFavoritesQuery } from './dto/getFavorites.query';
-import { UserAuthGuard } from 'src/helpers/guards/userAuth.guard';
-import { CurrentUser } from 'src/helpers/common/decorators/currentUser.decorator';
+import { UserAuthGuard } from '../helpers/guards/userAuth.guard';
+import { UserTokenDto } from '../client/token/dto/token.dto';
+import { CurrentUser } from '../helpers/common/decorators/currentUser.decorator';
 
 @ApiTags('favorites')
 @ApiBearerAuth()
@@ -47,7 +47,7 @@ export class FavoritesController {
     return this.favoritesService.getFavorites(currentUser, query);
   }
 
-  @Post('book/:bookId')
+  @Post('books/:bookId')
   @ApiOperation({
     summary: 'Add book to favorites',
     description: 'Add a book to user favorites',
@@ -61,7 +61,7 @@ export class FavoritesController {
     return this.favoritesService.addBookToFavorites(currentUser, bookId);
   }
 
-  @Post('drawing/:drawingId')
+  @Post('drawings/:drawingId')
   @ApiOperation({
     summary: 'Add drawing to favorites',
     description: 'Add a drawing to user favorites',

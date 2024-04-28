@@ -23,9 +23,10 @@ import {
   ApiUnauthorizedResponse,
   getSchemaPath,
 } from '@nestjs/swagger';
-import { RedisService } from 'src/redis/redis.service';
+
 import { AdminUserEntity } from '../user/entities/adminUser.entity';
-import { AdminAuthGuard } from 'src/helpers/guards/adminAuth.guard';
+import { RedisService } from '../../redis/redis.service';
+import { AdminAuthGuard } from '../../helpers/guards/adminAuth.guard';
 
 @ApiTags('auth')
 @Controller('/admin/auth')
@@ -37,13 +38,13 @@ export class AdminAuthController {
 
   @ApiOperation({ summary: 'User login' })
   @ApiCreatedResponse({
-    description: 'User logged in',
+    description: 'User logged in.',
     schema: {
       type: 'object',
       properties: {
         id: { description: 'User id', type: 'string' },
         firstName: { description: 'User first name', type: 'string' },
-        message: { type: 'string', example: 'System user login successfully!' },
+        message: { type: 'string', example: 'User login successfully.' },
         accessToken: { type: 'string' },
         refreshToken: { type: 'string' },
       },
@@ -59,17 +60,18 @@ export class AdminAuthController {
   })
   @Post('login')
   async login(@Body() loginDto: AdminLoginDto, @Res() res) {
-    const user = await this.authService.loginUser(loginDto);
-    res.cookie('refreshToken', user.refreshToken, {
+    const { user, accessToken, refreshToken, message } =
+      await this.authService.loginUser(loginDto);
+    res.cookie('refreshToken', refreshToken, {
       maxAge: 30 * 24 * 60 * 60 * 1000,
       httpOnly: true,
     });
     res.status(200).json({
-      message: 'System user login successfully!',
+      message,
       id: user.id,
       firstName: user.firstName,
-      accessToken: user.accessToken,
-      refreshToken: user.refreshToken,
+      accessToken,
+      refreshToken,
     });
   }
 
@@ -82,7 +84,7 @@ export class AdminAuthController {
         user: { $ref: getSchemaPath(AdminUserEntity) },
         message: {
           type: 'string',
-          example: 'System user tokens refreshed successfully!',
+          example: 'System user tokens refreshed successfully.',
         },
         accessToken: { type: 'string' },
         refreshToken: { type: 'string' },
@@ -102,10 +104,8 @@ export class AdminAuthController {
       httpOnly: true,
     });
     res.status(200).json({
-      message: 'System user tokens refreshed successfully!',
-      user: user.user,
-      accessToken: user.accessToken,
-      refreshToken: user.refreshToken,
+      message: 'System user tokens refreshed successfully.',
+      user,
     });
   }
 
@@ -115,7 +115,7 @@ export class AdminAuthController {
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'Log out successfully' },
+        message: { type: 'string', example: 'Log out successfully.' },
       },
     },
   })
@@ -134,7 +134,7 @@ export class AdminAuthController {
     await this.authService.logoutUser(refreshToken);
     res.clearCookie('refreshToken');
     res.status(200).json({
-      message: 'Log out successfully!',
+      message: 'Log out successfully.',
     });
   }
 }

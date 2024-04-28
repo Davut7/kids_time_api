@@ -1,3 +1,5 @@
+import { TokenService } from '../../client/token/token.service';
+import { RedisService } from '../../redis/redis.service';
 import {
   CanActivate,
   ExecutionContext,
@@ -5,8 +7,6 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { RedisService } from 'src/redis/redis.service';
-import { TokenService } from 'src/client/token/token.service';
 
 @Injectable()
 export class UserAuthGuard implements CanActivate {
@@ -28,10 +28,12 @@ export class UserAuthGuard implements CanActivate {
       }
 
       const userToken = this.tokenService.validateAccessToken(token);
+      console.log(userToken)
       if (!userToken.isVerified)
         throw new ForbiddenException('Please verify your account');
       const tokenInBlackList = await this.redisService.getRedisToken(token);
       if (tokenInBlackList) throw new UnauthorizedException('Token is invalid');
+
       req.currentUser = userToken;
       return true;
     } catch (e) {

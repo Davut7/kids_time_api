@@ -3,9 +3,9 @@ import { TerminusModule } from '@nestjs/terminus';
 import { HealthController } from './health.controller';
 import { HttpModule } from '@nestjs/axios';
 import { TerminusLogger } from './terminus.logger';
-import { AdminTokenModule } from 'src/admin/token/token.module';
-import { AdminUserModule } from 'src/admin/user/user.module';
-import { RedisModule } from 'src/redis/redis.module';
+import { AdminUserModule } from '../../admin/user/user.module';
+import { AdminTokenModule } from '../../admin/token/token.module';
+import { RedisModule } from '../../redis/redis.module';
 
 @Module({
   imports: [

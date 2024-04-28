@@ -3,9 +3,8 @@ import { In, QueryRunner, Repository } from 'typeorm';
 import { MinioService } from '../minio/minio.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MediaEntity } from './entities/mediaEntity';
-import { ITransformedFile } from 'src/helpers/common/interfaces/fileTransform.interface';
-import { LanguageEnum } from 'src/helpers/constants';
-import { UploadBookDto } from 'src/books/dto/uploadBook.dto';
+import { LanguageEnum } from '../helpers/constants/languageEnum';
+import { ITransformedFile } from '../helpers/common/interfaces/fileTransform.interface';
 
 @Injectable()
 export class MediaService {
@@ -44,7 +43,6 @@ export class MediaService {
     entityColumn: string,
     entityLng?: LanguageEnum,
   ) {
-    console.log(entityLng);
     const media = new MediaEntity();
     media.originalName = file.originalName;
     media.fileName = file.fileName;

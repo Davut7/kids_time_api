@@ -7,10 +7,10 @@ import {
   IsStrongPassword,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
 import { TokenEntity } from '../../token/entities/token.entity';
 import { MediaEntity } from '../../../media/entities/mediaEntity';
 import { UserFavoritesEntity } from '../../../favorites/entities/favorites.entity';
+import { BooksReadEntity } from './booksRead.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity extends BaseEntity {
@@ -39,7 +39,7 @@ export class UserEntity extends BaseEntity {
   @IsNotEmpty()
   @IsString()
   @IsStrongPassword()
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'varchar', nullable: true, select: false })
   password: string;
 
   @ApiProperty({
@@ -51,7 +51,7 @@ export class UserEntity extends BaseEntity {
     example: '12',
   })
   @Column({ type: 'int', default: 1 })
-  level: number;
+  level?: number;
 
   @ApiProperty({
     title: 'Experience points required for level 2',
@@ -61,11 +61,11 @@ export class UserEntity extends BaseEntity {
     default: 200,
   })
   @Column({ type: 'int', default: 200 })
-  expRequiredForNextLevel: number;
+  expRequiredForNextLevel?: number;
 
   @ApiProperty({ title: 'Current User exp', name: 'currentExp' })
   @Column({ type: 'int', default: 200 })
-  currentExp: number;
+  currentExp?: number;
 
   @IsEmail()
   @IsNotEmpty()
@@ -84,32 +84,32 @@ export class UserEntity extends BaseEntity {
     description: 'User verification code',
     example: '12456',
   })
-  @Exclude()
   @Column({ type: 'varchar', nullable: true })
-  verificationCode: string;
+  verificationCode?: string;
 
-  @Exclude()
   @Column({ type: 'varchar', nullable: true })
-  verificationCodeTime: Date;
+  verificationCodeTime?: Date;
 
   @ApiProperty({
     title: 'Is user verified',
     description: 'User account is verified',
     name: 'isVerified',
   })
-  @Exclude()
   @Column({ type: 'boolean', nullable: false, default: false })
-  isVerified: boolean;
+  isVerified?: boolean;
 
   @ApiProperty({ type: () => TokenEntity })
   @OneToOne(() => TokenEntity, (token) => token.user)
   @JoinColumn()
-  token: TokenEntity;
+  token?: TokenEntity;
 
   @ApiProperty({ type: () => MediaEntity })
   @OneToOne(() => MediaEntity, (media) => media.user)
-  media: MediaEntity;
+  media?: MediaEntity;
 
   @OneToMany(() => UserFavoritesEntity, (favorites) => favorites.user)
-  favorites: UserFavoritesEntity[];
+  favorites?: UserFavoritesEntity[];
+
+  @OneToMany(() => BooksReadEntity, (booksRead) => booksRead.user)
+  booksRead: BooksReadEntity[];
 }

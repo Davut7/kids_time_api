@@ -1,8 +1,9 @@
-import { IsNumber, IsOptional, IsPositive, IsEnum } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { IsOptional, IsEnum } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
 import { LogsEntity } from '../entity/log.entity';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
+import { PageOptionsDto } from '../../helpers/common/dto/page.dto';
+
 
 export class CreateLogDto extends PartialType(LogsEntity) {}
 
@@ -29,39 +30,11 @@ export enum LogsSortEnum {
   id_DESC = 'id_DESC',
 }
 
-export class FindLogsFilter {
-  @ApiProperty({
-    title: 'Take',
-    description: 'Limits returned logs',
-    type: Number,
-    minimum: 10,
-    default: 10,
-    nullable: true,
-    example: '10, 20, 50, 100',
-    required: false,
-  })
-  @IsNumber()
-  @IsOptional()
-  @IsPositive()
-  @Transform(({ value }) => parseInt(value))
-  take: number;
-
-  @ApiProperty({
-    title: 'Page',
-    description: 'Returning next part of logs',
-    type: Number,
-    minimum: 1,
-    default: 1,
-    nullable: true,
-    example: '1, 2, 3, 4...',
-    required: false,
-  })
-  @IsNumber()
-  @IsOptional()
-  @IsPositive()
-  @Transform(({ value }) => parseInt(value))
-  page: number;
-
+export class FindLogsFilter extends PickType(PageOptionsDto, [
+  'page',
+  'take',
+  'order',
+]) {
   @ApiProperty({
     title: 'Filter by HTTP methods',
     description: 'Filtering logs by methods, [POST, GET, PUT, DELETE]',
@@ -106,5 +79,5 @@ export class FindLogsFilter {
   })
   @IsOptional()
   @IsEnum(LogsSortEnum)
-  sort: LogsSortEnum;
+  orderBy: LogsSortEnum;
 }

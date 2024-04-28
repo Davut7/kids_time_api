@@ -14,7 +14,6 @@ export class ImageTransformer implements PipeTransform<Express.Multer.File> {
   constructor(private readonly minioService: MinioService) {}
 
   async transform(file: Express.Multer.File): Promise<ITransformedFile> {
-    console.log(file);
     if (!file) throw new BadRequestException('Image not provided');
     let transformedFile: ITransformedFile;
     try {

@@ -4,7 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserEntity } from '../entities/adminUser.entity';
 import { Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
-import { TokenDto } from 'src/admin/token/dto/token.dto';
+
 
 describe('UserService', () => {
   let service: UserService;

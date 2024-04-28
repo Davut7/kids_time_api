@@ -38,5 +38,5 @@ export class CategoryAttributesEntity extends BaseEntity {
   @ManyToOne(() => CategoryEntity, (category) => category.attributes, {
     onDelete: 'CASCADE',
   })
-  category: CategoryEntity;
+  category?: CategoryEntity;
 }

@@ -26,14 +26,14 @@ export class CategoryEntity extends BaseEntity {
   title: string;
 
   @OneToMany(() => BooksEntity, (books) => books.category)
-  books: BooksEntity[];
+  books?: BooksEntity[];
 
   @OneToMany(() => DrawingsEntity, (drawings) => drawings.category)
-  drawing: DrawingsEntity[];
+  drawing?: DrawingsEntity[];
 
   @OneToMany(() => MediaEntity, (media) => media.category)
-  medias: MediaEntity[];
+  medias?: MediaEntity[];
 
   @OneToMany(() => CategoryAttributesEntity, (attribute) => attribute.category)
-  attributes: CategoryAttributesEntity[];
+  attributes?: CategoryAttributesEntity[];
 }

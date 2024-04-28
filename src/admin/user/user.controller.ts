@@ -9,8 +9,8 @@ import {
   Patch,
   Post,
   Query,
-  SerializeOptions,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AdminUserService } from './user.service';
 import { UserUpdateDto } from './dto/updateUser.dto';
@@ -27,9 +27,9 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import { AdminUserEntity } from './entities/adminUser.entity';
-import { CreateUserDto } from './dto/createUser.dto';
-import { AdminAuthGuard } from 'src/helpers/guards/adminAuth.guard';
+import { CreateAdminUserDto } from './dto/createUser.dto';
 import { GetUsersQuery } from './dto/getUsers.query';
+import { AdminAuthGuard } from '../../helpers/guards/adminAuth.guard';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -53,7 +53,7 @@ export class AdminUserController {
     description: 'User with name already exists!',
   })
   @Post('/create-user')
-  async createUser(@Body() createUserDto: CreateUserDto) {
+  async createUser(@Body() createUserDto: CreateAdminUserDto) {
     return this.userService.createUser(createUserDto);
   }
 

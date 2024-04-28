@@ -33,8 +33,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { randomUUID } from 'crypto';
-import { ITransformedFile } from 'src/helpers/common/interfaces/fileTransform.interface';
-import { AdminAuthGuard } from 'src/helpers/guards/adminAuth.guard';
 import { BooksService } from './books.service';
 import { BooksEntity } from './entities/books.entity';
 import { CreateBookDto } from './dto/createBook.dto';
@@ -43,12 +41,14 @@ import { UpdateBookDto } from './dto/updateBook.dto';
 import { BooksAttributesEntity } from './entities/booksAttributes.entity';
 import { CreateBookAttributeDto } from './dto/createBookAttribute.dto';
 import { UpdateBookAttributeDto } from './dto/updateBookAttribute.dto';
-import { PdfTransformer } from 'src/helpers/pipes/booksTransform.pipe';
 import { UploadBookDto } from './dto/uploadBook.dto';
 import { DownloadBookQuery } from './dto/downloadBook.query';
-import { CurrentUser } from 'src/helpers/common/decorators/currentUser.decorator';
-import { UserTokenDto } from 'src/client/token/dto/token.dto';
-import { UserAuthGuard } from 'src/helpers/guards/userAuth.guard';
+import { AdminAuthGuard } from '../helpers/guards/adminAuth.guard';
+import { UserAuthGuard } from '../helpers/guards/userAuth.guard';
+import { PdfTransformer } from '../helpers/pipes/booksTransform.pipe';
+import { ITransformedFile } from '../helpers/common/interfaces/fileTransform.interface';
+import { UserTokenDto } from '../client/token/dto/token.dto';
+import { CurrentUser } from '../helpers/common/decorators/currentUser.decorator';
 
 @ApiTags('books')
 @ApiBearerAuth()
@@ -58,7 +58,7 @@ export class BooksController {
 
   @ApiOperation({ summary: 'Create a new book' })
   @ApiCreatedResponse({
-    description: 'Book created successfully',
+    description: 'Book created successfully.',
     schema: {
       type: 'object',
       properties: {
@@ -67,9 +67,9 @@ export class BooksController {
       },
     },
   })
-  @ApiConflictResponse({
-    type: ConflictException,
-    description: 'Book with this title already exists',
+  @ApiNotFoundResponse({
+    type: NotFoundException,
+    description: 'Category not found!',
   })
   @UseGuards(AdminAuthGuard)
   @Post(':categoryId')
@@ -98,12 +98,12 @@ export class BooksController {
 
   @ApiOperation({ summary: 'Get a single book' })
   @ApiOkResponse({
-    description: 'Single book retrieved successfully',
+    description: 'Book retrieved by id successfully',
     type: BooksEntity,
   })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'Book not found',
+    description: 'Book not found!',
   })
   @UseGuards(UserAuthGuard)
   @ApiParam({ name: 'bookId', description: 'Book id' })
@@ -117,18 +117,18 @@ export class BooksController {
 
   @ApiOperation({ summary: 'Update a book' })
   @ApiOkResponse({
-    description: 'Book updated successfully',
+    description: 'Book updated successfully.',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'Book updated successfully' },
+        message: { type: 'string', example: 'Book updated successfully.' },
         books: { $ref: getSchemaPath(BooksEntity) },
       },
     },
   })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'Book not found',
+    description: 'Book not found!',
   })
   @ApiParam({ name: 'bookId', description: 'Book id' })
   @UseGuards(AdminAuthGuard)
@@ -142,17 +142,17 @@ export class BooksController {
 
   @ApiOperation({ summary: 'Delete a book' })
   @ApiOkResponse({
-    description: 'Book deleted successfully',
+    description: 'Book deleted successfully.',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'Book deleted successfully' },
+        message: { type: 'string', example: 'Book deleted successfully.' },
       },
     },
   })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'Book not found',
+    description: 'Book not found!',
   })
   @ApiParam({ name: 'bookId', description: 'Book id' })
   @UseGuards(AdminAuthGuard)
@@ -162,10 +162,10 @@ export class BooksController {
   }
 
   @ApiOperation({ summary: 'Upload book media' })
-  @ApiOkResponse({ description: 'Book media uploaded successfully' })
+  @ApiOkResponse({ description: 'Book media uploaded successfully.' })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'Book not found',
+    description: 'Book not found!',
   })
   @ApiInternalServerErrorResponse({ description: 'Error while uploading book' })
   @ApiConsumes('multipart/form-data')
@@ -192,19 +192,22 @@ export class BooksController {
     return this.booksService.uploadMedia(file, bookId, dto);
   }
 
-  @ApiOperation({ summary: 'Delete book media' })
+  @ApiOperation({ summary: 'Delete book media.' })
   @ApiOkResponse({
-    description: 'Book media deleted successfully',
+    description: 'Book media deleted successfully.',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'Book media deleted successfully' },
+        message: {
+          type: 'string',
+          example: 'Book media deleted successfully.',
+        },
       },
     },
   })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'Book not found',
+    description: 'Book not found!',
   })
   @ApiInternalServerErrorResponse({
     description: 'Error while uploading books',
@@ -219,15 +222,15 @@ export class BooksController {
     return this.booksService.deleteMedia(bookId, mediaId);
   }
 
-  @ApiOperation({ summary: 'Create a new book attribute' })
+  @ApiOperation({ summary: 'Create a new book attribute.' })
   @ApiCreatedResponse({
-    description: 'Book attribute created successfully',
+    description: 'Book attribute created successfully.',
     schema: {
       type: 'object',
       properties: {
         message: {
           type: 'string',
-          example: 'Book attribute created successfully',
+          example: 'Book attribute created successfully.',
         },
         attribute: {
           type: 'object',
@@ -236,8 +239,9 @@ export class BooksController {
       },
     },
   })
-  @ApiBadRequestResponse({
-    description: 'Book attribute with this language already exists',
+  @ApiConflictResponse({
+    type: ConflictException,
+    description: 'Book attribute with this language already exists!',
   })
   @UseGuards(AdminAuthGuard)
   @Post('/attributes/:bookId')
@@ -248,13 +252,13 @@ export class BooksController {
     return this.booksService.createAttribute(dto, bookId);
   }
 
-  @ApiOperation({ summary: 'Update a book attribute' })
+  @ApiOperation({ summary: 'Update a book attribute.' })
   @ApiOkResponse({
-    description: 'Book attribute updated successfully',
+    description: 'Book attribute updated successfully.',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: 'Attribute updated successfully' },
+        message: { type: 'string', example: 'Attribute updated successfully.' },
         attribute: {
           type: 'object',
           $ref: getSchemaPath(BooksAttributesEntity),
@@ -263,7 +267,7 @@ export class BooksController {
     },
   })
   @ApiNotFoundResponse({
-    description: 'Attribute not found',
+    description: 'Attribute not found!',
   })
   @UseGuards(AdminAuthGuard)
   @Patch('/:bookId/attributes/:attributeId')
@@ -275,9 +279,9 @@ export class BooksController {
     return this.booksService.updateAttribute(bookId, attributeId, dto);
   }
 
-  @ApiOperation({ summary: 'Delete a book attribute' })
-  @ApiOkResponse({ description: 'Book attribute deleted successfully' })
-  @ApiNotFoundResponse({ description: 'Attribute not found' })
+  @ApiOperation({ summary: 'Delete a book attribute.' })
+  @ApiOkResponse({ description: 'Book attribute deleted successfully.' })
+  @ApiNotFoundResponse({ description: 'Attribute not found!' })
   @UseGuards(AdminAuthGuard)
   @Delete('/:bookId/attributes/:attributeId')
   async deleteAttribute(
@@ -287,14 +291,14 @@ export class BooksController {
     return this.booksService.deleteAttribute(bookId, attributeId);
   }
 
-  @ApiOperation({ summary: 'Download book' })
+  @ApiOperation({ summary: 'Download book.' })
   @ApiOkResponse({
     type: String,
-    description: 'Returns link for downloading book',
+    description: 'Returns link for downloading book.',
   })
   @ApiNotFoundResponse({
     type: NotFoundException,
-    description: 'Book not found',
+    description: 'Book not found!',
   })
   @Get('/:bookId/download')
   async downloadBook(

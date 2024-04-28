@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserUpdateDto } from './dto/updateUser.dto';
 import { hash } from 'bcrypt';
-import { CreateUserDto } from './dto/createUser.dto';
+import { CreateAdminUserDto } from './dto/createUser.dto';
 import { AdminUserEntity } from './entities/adminUser.entity';
 import { AdminTokenDto } from '../token/dto/token.dto';
 import { GetUsersQuery } from './dto/getUsers.query';
@@ -24,11 +24,11 @@ export class AdminUserService {
     return user;
   }
 
-  async createUser(dto: CreateUserDto) {
+  async createUser(dto: CreateAdminUserDto) {
+    console.log(dto);
     const existingUser = await this.userRepository.findOne({
       where: { firstName: dto.firstName },
     });
-
     if (existingUser)
       throw new ConflictException(
         `User with firstName ${dto.firstName} already exists!`,
@@ -41,7 +41,11 @@ export class AdminUserService {
     await this.userRepository.save(user);
 
     return {
-      message: 'User created successful!',
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+      },
+      message: 'User created successfully!',
     };
   }
 
@@ -72,19 +76,18 @@ export class AdminUserService {
 
   async updateUserById(userId: string, userUpdateDto: UserUpdateDto) {
     const user = await this.findUserById(userId);
+
     if (userUpdateDto.password) {
       const hashedPassword = await hash(userUpdateDto.password, 10);
       userUpdateDto.password = hashedPassword;
     }
-    Object.assign(user, userUpdateDto);
-
+    user.firstName = userUpdateDto.firstName;
     await this.userRepository.save(user);
+
     return {
       message: 'User updated successfully!',
       id: user.id,
       firstName: user.firstName,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
     };
   }
 
@@ -105,6 +108,6 @@ export class AdminUserService {
     });
     if (!user)
       throw new NotFoundException('User not found, maybe account deleted');
-    return user;
+    return new AdminTokenDto(user);
   }
 }

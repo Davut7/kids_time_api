@@ -7,7 +7,9 @@ import {
   IsIn,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { OrderType, LanguageEnum } from 'src/helpers/constants';
+import { OrderType } from '../../constants/orderEnum';
+import { LanguageEnum } from '../../constants/languageEnum';
+
 
 export class PageOptionsDto {
   @IsEnum(OrderType)
