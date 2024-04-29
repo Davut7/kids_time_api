@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserUpdateDto } from './dto/updateUser.dto';
-import { hash } from 'bcrypt';
+import { hash } from 'bcryptjs';
 import { CreateAdminUserDto } from './dto/createUser.dto';
 import { AdminUserEntity } from './entities/adminUser.entity';
 import { AdminTokenDto } from '../token/dto/token.dto';
@@ -25,7 +25,6 @@ export class AdminUserService {
   }
 
   async createUser(dto: CreateAdminUserDto) {
-    console.log(dto);
     const existingUser = await this.userRepository.findOne({
       where: { firstName: dto.firstName },
     });

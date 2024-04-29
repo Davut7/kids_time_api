@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { compare, hash } from 'bcrypt';
+import { compare, hash } from 'bcryptjs';
 import { UserEntity } from '../user/entities/user.entity';
 import { TokenService } from '../token/token.service';
 import { UserLoginDto } from './dto/userLogin.dto';
@@ -53,7 +53,6 @@ export class AuthService {
   }
   async loginUser(dto: UserLoginDto) {
     const user = await this.userService.findOneByEmail(dto.email);
-    console.log(user);
     const isPasswordValid = await compare(dto.password, user.password);
     if (!isPasswordValid)
       throw new BadRequestException(`User password incorrect!`);
@@ -61,7 +60,6 @@ export class AuthService {
     const tokens = this.tokenService.generateTokens({
       ...new UserTokenDto(user),
     });
-    console.log(tokens);
     await this.tokenService.saveTokens(user.id, tokens.refreshToken);
 
     return {
@@ -99,7 +97,6 @@ export class AuthService {
   }
 
   async verifyUser(userId: string, dto: UserVerificationDto) {
-    console.log(userId);
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
     if (user.verificationCode !== dto.verificationCode)
@@ -109,7 +106,6 @@ export class AuthService {
       +process.env.USER_VERIFICATION_CODE_TIME
     )
       throw new BadRequestException(`Activation code expired!`);
-    console.log(user);
     if (user.isVerified)
       throw new ConflictException('User is already verified');
 
@@ -138,7 +134,7 @@ export class AuthService {
     await this.mailsService.sendVerificationCode(verificationCode, user.email);
     await this.userRepository.save(user);
     return {
-      message: 'Verification code sent successfully!',
+      message: 'Verification code sent successfully.',
     };
   }
 

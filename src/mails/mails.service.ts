@@ -7,6 +7,8 @@ export class MailsService {
   constructor(private readonly mailerService: MailerService) {}
 
   async sendMail(dto: CreateMailDto) {
+    if (process.env.NODE_ENV === 'development')
+      return { message: 'Mail send successfully!' };
     await this.mailerService.sendMail({
       to: process.env.SMTP_USER,
       from: dto.email,
@@ -25,6 +27,8 @@ export class MailsService {
 
   async sendVerificationCode(verificationCode: string, email: string) {
     try {
+      if (process.env.NODE_ENV === 'development')
+        return { message: 'Verification code send successfully!' };
       await this.mailerService.sendMail({
         to: process.env.SMTP_USER,
         from: email,
@@ -35,7 +39,6 @@ export class MailsService {
         </div>
       `,
       });
-
       return { message: 'Verification code send successfully!' };
     } catch (error) {
       console.log('Error while sending verification code', error);

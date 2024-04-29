@@ -5,7 +5,7 @@ services:
     build:
       context: .
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
     command: >
       sh -c "if [ $$NODE_ENV = 'production' ]; then
               npm run start;

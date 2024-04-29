@@ -28,7 +28,6 @@ export class UserAuthGuard implements CanActivate {
       }
 
       const userToken = this.tokenService.validateAccessToken(token);
-      console.log(userToken)
       if (!userToken.isVerified)
         throw new ForbiddenException('Please verify your account');
       const tokenInBlackList = await this.redisService.getRedisToken(token);

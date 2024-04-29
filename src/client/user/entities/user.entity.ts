@@ -111,5 +111,5 @@ export class UserEntity extends BaseEntity {
   favorites?: UserFavoritesEntity[];
 
   @OneToMany(() => BooksReadEntity, (booksRead) => booksRead.user)
-  booksRead: BooksReadEntity[];
+  booksRead?: BooksReadEntity[];
 }

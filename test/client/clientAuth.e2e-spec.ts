@@ -1,22 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../../src/app.module';
 import { Repository } from 'typeorm';
 import { Redis } from 'ioredis';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import * as cookieParser from 'cookie-parser';
-import { UserRegistrationDto } from '../src/client/auth/dto/userRegistration.dto';
-import { UserEntity } from '../src/client/user/entities/user.entity';
+import { UserRegistrationDto } from '../../src/client/auth/dto/userRegistration.dto';
+import { UserEntity } from '../../src/client/user/entities/user.entity';
 import { UserLoginDto } from 'src/client/auth/dto/userLogin.dto';
-import { UserVerificationDto } from '../src/client/auth/dto/userVerification.dto';
+import { UserVerificationDto } from '../../src/client/auth/dto/userVerification.dto';
 import * as jwt from 'jsonwebtoken';
-import { UserTokenDto } from '../src/client/token/dto/token.dto';
-import { hash } from 'bcrypt';
-import { generateRandomSixDigitNumber } from '../src/helpers/providers/generateVerificationCode';
-import { AuthModule } from '../src/client/auth/auth.module';
-import { AuthService } from '../src/client/auth/auth.service';
-import { TokenModule } from '../src/client/token/token.module';
+import { UserTokenDto } from '../../src/client/token/dto/token.dto';
+import { hash } from 'bcryptjs';
+import { generateRandomSixDigitNumber } from '../../src/helpers/providers/generateVerificationCode';
+import { AuthModule } from '../../src/client/auth/auth.module';
+import { AuthService } from '../../src/client/auth/auth.service';
+import { TokenModule } from '../../src/client/token/token.module';
+import { MailsModule } from '../../src/mails/mails.module';
+import { UserModule } from '../../src/client/user/user.module';
 
 describe('ClientAuthController (e2e)', () => {
   let app: INestApplication;
@@ -24,6 +26,8 @@ describe('ClientAuthController (e2e)', () => {
   let user: UserEntity;
   let userForVerify: UserEntity;
   let authService: AuthService;
+
+  let userForRefresh;
 
   let userRegistrationDto: UserRegistrationDto = {
     email: 'test123@gmail.com',
@@ -79,7 +83,14 @@ describe('ClientAuthController (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule, Redis, AuthModule, TokenModule],
+      imports: [
+        AppModule,
+        Redis,
+        AuthModule,
+        TokenModule,
+        MailsModule,
+        UserModule,
+      ],
       providers: [
         {
           provide: getRepositoryToken(UserEntity),
@@ -231,10 +242,10 @@ describe('ClientAuthController (e2e)', () => {
 
   describe('Should refresh user tokens GET /auth/refresh', () => {
     it('should refresh user tokens successfully GET /auth/refresh', async () => {
-      await authService.loginUser(userLoginForRefresh);
+      userForRefresh = await authService.loginUser(userLoginForRefresh);
       await request(app.getHttpServer())
         .get('/auth/refresh')
-        .set('Cookie', [`refreshToken=${refreshToken}`])
+        .set('Cookie', [`refreshToken=${userForRefresh.refreshToken}`])
         .expect(200)
         .expect((res) => {
           expect(res.body.message).toBe(
@@ -270,9 +281,10 @@ describe('ClientAuthController (e2e)', () => {
 
   describe('logout user from system POST /auth/logout', () => {
     it('should log out user from system', async () => {
+      userForRefresh = await authService.loginUser(userLoginForRefresh);
       await request(app.getHttpServer())
         .post('/auth/logout')
-        .set('Cookie', [`refreshToken=${refreshToken}`])
+        .set('Cookie', [`refreshToken=${userForRefresh.refreshToken}`])
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200)
         .expect((res) => {
@@ -300,6 +312,26 @@ describe('ClientAuthController (e2e)', () => {
           expect(res.body.message).toBe(
             'Token not found! Please register first',
           );
+        });
+    });
+  });
+
+  describe('Should send verification code to user email GET /auth/userId/resend-code', () => {
+    it('should resend verification code to user email GET /auth/userId/resend-code', async () => {
+      await request(app.getHttpServer())
+        .post(`/auth/${user.id}/resend-code`)
+        .expect(201)
+        .expect((res) => {
+          expect(res.body.message).toBe('Verification code sent successfully.');
+        });
+    });
+
+    it('should throw not found error if user not found GET /auth/userId/resend-code', async () => {
+      await request(app.getHttpServer())
+        .post(`/auth/${wrongId}/resend-code`)
+        .expect(404)
+        .expect((res) => {
+          expect(res.body.message).toBe('User not found!');
         });
     });
   });

@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, QueryRunner } from 'typeorm';
 import { UserUpdateDto } from './dto/updateUser.dto';
-import { hash } from 'bcrypt';
+import { hash } from 'bcryptjs';
 import { UserEntity } from './entities/user.entity';
 import { UserTokenDto } from '../token/dto/token.dto';
 import { AddExpDto } from './dto/addExp.dto';
@@ -188,7 +188,7 @@ export class UserService {
       await this.booksReadRepository.save(bookRead);
       await queryRunner.commitTransaction();
       return {
-        message: 'Book added to read list',
+        message: 'Book added to read list successfully.',
       };
     } catch (error) {
       queryRunner.rollbackTransaction();
@@ -211,7 +211,7 @@ export class UserService {
     if (query.lng) {
       booksQuery.andWhere('attributes.language = :lng', { lng: query.lng });
     }
-    
+
     if (q) {
       booksQuery.andWhere('books.title LIKE :q', { q: `%${q}%` });
     }

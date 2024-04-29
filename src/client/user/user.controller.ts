@@ -37,7 +37,7 @@ import { imageFilter } from '../../helpers/filters/imageFilter';
 import { ITransformedFile } from '../../helpers/common/interfaces/fileTransform.interface';
 import { GetReadBooksDto } from './dto/getReadBooks.dto';
 
-@ApiTags('users')
+@ApiTags('client-users')
 @ApiBearerAuth()
 @UseGuards(UserAuthGuard)
 @Controller('/users')
@@ -143,8 +143,7 @@ export class UserController {
     @CurrentUser() currentUser: UserTokenDto,
     @Param('bookId', ParseUUIDPipe) bookId: string,
   ) {
-    await this.userService.addBookToReadList(currentUser, bookId);
-    return { message: 'Book added to read list' };
+    return await this.userService.addBookToReadList(currentUser, bookId);
   }
 
   @ApiOperation({ summary: 'Get books read by the current user' })

@@ -92,7 +92,7 @@ export class CategoryService {
     await queryRunner.startTransaction();
     await queryRunner.connect();
     const category = await this.findCategoryById(categoryId);
-    console.log(category);
+
     let categoryImageIds: string[] = [];
     for (const media of category.medias) {
       categoryImageIds.push(media.id);

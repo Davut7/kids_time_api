@@ -88,8 +88,6 @@ export class BooksService {
       .leftJoinAndSelect('books.attributes', 'attributes')
       .where('books.id = :bookId', { bookId })
       .getOne();
-    console.log(book);
-    console.log(currentUser);
     if (!book) throw new NotFoundException('Book not found!');
     if (book.requiredLevel > currentUser?.level)
       throw new ForbiddenException('Your level is lower than required!');
@@ -261,11 +259,10 @@ export class BooksService {
   }
 
   async downloadBook(bookId: string, bookLanguage: DownloadBookQuery) {
-    await this.findBookById(bookId);
-
+    const book = await this.findBookById(bookId);
     const media = await this.mediaService.getMediaByLng(
       'bookId',
-      bookId,
+      book.id,
       bookLanguage.lng,
     );
     if (!media) throw new NotFoundException('Media not found!');

@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 import { AdminTokenService } from '../token/token.service';
 import { AdminTokenDto } from '../token/dto/token.dto';
 import { AdminLoginDto } from './dto/userLogin.dto';
-import { compare } from 'bcrypt';
+import { compare } from 'bcryptjs';
 @Injectable()
 export class AdminAuthService {
   constructor(
@@ -41,7 +41,7 @@ export class AdminAuthService {
     await this.tokenService.saveTokens(user.id, tokens.refreshToken);
 
     return {
-      message: 'User login successful!',
+      message: 'User login successfully.',
       user,
       ...tokens,
     };

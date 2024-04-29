@@ -84,11 +84,9 @@ export class TokenService {
   }
 
   async findToken(refreshToken: string) {
-    console.log(refreshToken);
     const token = await this.tokenRepository.findOne({
       where: { refreshToken: refreshToken },
     });
-    console.log(token)
     if (!token)
       throw new UnauthorizedException('Token not found! Please register first');
     return token;

@@ -17,7 +17,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import {
-  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConflictResponse,
   ApiConsumes,

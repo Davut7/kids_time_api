@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { CreateAdminUserDto } from '../src/admin/user/dto/createUser.dto';
+import { AppModule } from '../../src/app.module';
+import { CreateAdminUserDto } from '../../src/admin/user/dto/createUser.dto';
 import { DataSource, In } from 'typeorm';
-import { AdminUserEntity } from '../src/admin/user/entities/adminUser.entity';
+import { AdminUserEntity } from '../../src/admin/user/entities/adminUser.entity';
 import { Redis } from 'ioredis';
 import * as jwt from 'jsonwebtoken';
-import { AdminTokenDto } from '../src/admin/token/dto/token.dto';
+import { AdminTokenDto } from '../../src/admin/token/dto/token.dto';
 
 describe('AdminUserController (e2e)', () => {
   let app: INestApplication;

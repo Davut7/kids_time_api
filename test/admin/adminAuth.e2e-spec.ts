@@ -1,17 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { AdminUserService } from '../src/admin/user/user.service';
+import { AppModule } from '../../src/app.module';
+import { AdminUserService } from '../../src/admin/user/user.service';
 import { Repository } from 'typeorm';
-import { AdminUserEntity } from '../src/admin/user/entities/adminUser.entity';
+import { AdminUserEntity } from '../../src/admin/user/entities/adminUser.entity';
 import { Redis } from 'ioredis';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CreateAdminUserDto } from '../src/admin/user/dto/createUser.dto';
+import { CreateAdminUserDto } from '../../src/admin/user/dto/createUser.dto';
 import * as cookieParser from 'cookie-parser';
 import * as jwt from 'jsonwebtoken';
-import { AdminTokenDto } from '../src/admin/token/dto/token.dto';
-import { hash } from 'bcrypt';
+import { AdminTokenDto } from '../../src/admin/token/dto/token.dto';
+import { hash } from 'bcryptjs';
 
 describe('AdminAuthController (e2e)', () => {
   let app: INestApplication;
@@ -78,7 +78,7 @@ describe('AdminAuthController (e2e)', () => {
         .expect(200)
         .expect((res) => {
           refreshToken = res.body.refreshToken;
-          expect(res.body.message).toBe('System user login successfully!');
+          expect(res.body.message).toBe('User login successfully.');
           expect(res.body.id).toBeDefined();
           expect(res.body.firstName).toBe(createAdminUserDto.firstName);
           expect(res.body.accessToken).toBeDefined();
@@ -125,12 +125,8 @@ describe('AdminAuthController (e2e)', () => {
         .set('Cookie', [`refreshToken=${refreshToken}`])
         .expect(200)
         .expect((res) => {
-          expect(res.body.message).toBe(
-            'System user tokens refreshed successfully!',
-          );
+          expect(res.body.message).toBe('User tokens refreshed successfully.');
           expect(res.body.user).toBeDefined();
-          expect(res.body.accessToken).toBeDefined();
-          expect(res.body.refreshToken).toBeDefined();
         });
     });
     it('should throw new unauthorized if token is not provided', () => {
@@ -138,7 +134,7 @@ describe('AdminAuthController (e2e)', () => {
         .get('/admin/auth/refresh')
         .expect(401)
         .expect((res) => {
-          expect(res.body.message).toBe('Refresh token not provided');
+          expect(res.body.message).toBe('Refresh token not provided!');
         });
     });
     it('should throw new unauthorized if token invalid', () => {
@@ -147,7 +143,7 @@ describe('AdminAuthController (e2e)', () => {
         .set('Cookie', [`refreshToken=${invalidRefreshToken}`])
         .expect(401)
         .expect((res) => {
-          expect(res.body.message).toBe('Invalid token');
+          expect(res.body.message).toBe('Invalid token!');
         });
     });
   });
@@ -160,7 +156,7 @@ describe('AdminAuthController (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200)
         .expect((res) => {
-          expect(res.body.message).toBe('Log out successfully!');
+          expect(res.body.message).toBe('Log out successfully.');
         });
     });
   });

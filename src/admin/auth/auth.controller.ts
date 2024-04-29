@@ -104,7 +104,7 @@ export class AdminAuthController {
       httpOnly: true,
     });
     res.status(200).json({
-      message: 'System user tokens refreshed successfully.',
+      message: 'User tokens refreshed successfully.',
       user,
     });
   }

@@ -35,7 +35,7 @@ import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../../redis/redis.service';
 import { GoogleAuthGuard } from '../../helpers/guards/googleAuth.guard';
 
-@ApiTags('auth')
+@ApiTags('client/auth')
 @Controller('/auth')
 export class AuthController {
   constructor(
@@ -133,7 +133,7 @@ export class AuthController {
     type: NotFoundException,
     description: 'User with not found!',
   })
-  @UseGuards(ThrottlerGuard)
+  // @UseGuards(ThrottlerGuard)
   @Post('login')
   async login(@Body() loginDto: UserLoginDto, @Res() res) {
     const user = await this.authService.loginUser(loginDto);
@@ -214,12 +214,11 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Resend verification code' })
-  @Throttle({ default: { limit: 1, ttl: 1000 * 60 * 2 } })
-  @UseGuards(ThrottlerGuard)
+  // @Throttle({ default: { limit: 1, ttl: 1000 * 60 * 2 } })
+  // @UseGuards(ThrottlerGuard)
   @Post(':userId/resend-code')
   async resendVerificationCode(@Param('userId') userId: string) {
-    const code = await this.authService.sendVerificationCode(userId);
-    return code;
+    return this.authService.sendVerificationCode(userId);
   }
 
   @ApiOperation({ summary: 'Google authentication redirect' })
