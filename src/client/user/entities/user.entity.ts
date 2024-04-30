@@ -98,12 +98,10 @@ export class UserEntity extends BaseEntity {
   @Column({ type: 'boolean', nullable: false, default: false })
   isVerified?: boolean;
 
-  @ApiProperty({ type: () => TokenEntity })
   @OneToOne(() => TokenEntity, (token) => token.user)
   @JoinColumn()
   token?: TokenEntity;
 
-  @ApiProperty({ type: () => MediaEntity })
   @OneToOne(() => MediaEntity, (media) => media.user)
   media?: MediaEntity;
 

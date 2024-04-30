@@ -36,7 +36,6 @@ export class AdminUserEntity extends BaseEntity {
   @Column({ type: 'varchar', nullable: false })
   password: string;
 
-  @ApiProperty({ type: () => AdminTokenEntity })
   @OneToOne(() => AdminTokenEntity, (token) => token.user)
   @JoinColumn()
   token?: AdminTokenEntity;

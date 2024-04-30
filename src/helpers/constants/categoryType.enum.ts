@@ -1,5 +1,5 @@
 export enum CategoryTypeEnum {
-  book = 'book',
+  books = 'books',
   drawings = 'drawings',
   games = 'games',
 }

@@ -9,7 +9,6 @@ export class TokenEntity extends BaseEntity {
   @Column({ type: 'text', nullable: false })
   refreshToken: string;
 
-  @ApiProperty({ type: () => UserEntity })
   @OneToOne(() => UserEntity, (user) => user.token, {
     onDelete: 'CASCADE',
   })

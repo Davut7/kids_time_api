@@ -34,7 +34,6 @@ export class CategoryAttributesEntity extends BaseEntity {
   @Column({ type: 'uuid', nullable: false })
   categoryId: string;
 
-  @ApiProperty({ description: 'The category to which this attribute belongs' })
   @ManyToOne(() => CategoryEntity, (category) => category.attributes, {
     onDelete: 'CASCADE',
   })

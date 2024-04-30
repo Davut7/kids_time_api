@@ -15,8 +15,8 @@ export class DrawingsEntity extends BaseEntity {
     name: 'title',
     nullable: false,
   })
-    @IsInt()
-    @IsNotEmpty()
+  @IsInt()
+  @IsNotEmpty()
   @Column({ type: 'int', nullable: false })
   requiredLevel: number;
 

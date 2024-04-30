@@ -6,6 +6,7 @@ import { BooksEntity } from '../../books/entities/books.entity';
 import { DrawingsEntity } from '../../drawings/entities/drawings.entity';
 import { MediaEntity } from '../../media/entities/mediaEntity';
 import { BaseEntity } from '../../helpers/entities/baseEntity.entity';
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 @Entity({ name: 'categories' })
 export class CategoryEntity extends BaseEntity {
@@ -13,7 +14,11 @@ export class CategoryEntity extends BaseEntity {
     title: 'Category type',
     name: 'categoryType',
     nullable: false,
+    enum: CategoryTypeEnum,
+    enumName: 'categoryType',
   })
+  @IsNotEmpty()
+  @IsEnum(CategoryTypeEnum)
   @Column({ type: 'enum', enum: CategoryTypeEnum, nullable: false })
   categoryType: CategoryTypeEnum;
 
@@ -22,6 +27,8 @@ export class CategoryEntity extends BaseEntity {
     name: 'title',
     nullable: false,
   })
+  @IsString()
+  @IsNotEmpty()
   @Column({ type: 'varchar', nullable: false })
   title: string;
 

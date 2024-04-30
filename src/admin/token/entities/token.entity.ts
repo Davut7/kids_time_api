@@ -9,7 +9,6 @@ export class AdminTokenEntity extends BaseEntity {
   @Column({ type: 'text', nullable: false })
   refreshToken: string;
 
-  @ApiProperty({ type: () => AdminUserEntity })
   @OneToOne(() => AdminUserEntity, (user) => user.token, {
     onDelete: 'CASCADE',
   })
