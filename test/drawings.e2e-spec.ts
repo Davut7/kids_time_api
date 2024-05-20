@@ -22,7 +22,7 @@ import { CreateDrawingsAttributeDto } from '../src/drawings/dto/createDrawingAtt
 import { CreateDrawingDto } from '../src/drawings/dto/createDrawing.dto';
 import { UpdateDrawingsDto } from '../src/drawings/dto/updateDrawings.dto';
 import { MediaEntity } from '../src/media/entities/mediaEntity';
-import { DownloadDrawingsQuery } from 'src/drawings/dto/downloadDrawing.query';
+import { DownloadDrawingsQuery } from '../src/drawings/dto/downloadDrawing.query';
 
 describe('DrawingsController Endpoints', () => {
   let app: INestApplication;
@@ -418,8 +418,9 @@ describe('DrawingsController Endpoints', () => {
     it('should download drawing', async () => {
       await request(app.getHttpServer())
         .get(`/drawings/${drawing.id}/download`)
-        .query(validDownloadDrawingQuery)
         .set('Authorization', `Bearer ${adminToken}`)
+        .query(validDownloadDrawingQuery)
+        .set('Authorization', `Bearer ${token}`)
         .expect(200)
         .expect((res) => {
           expect(res.body.media).toEqual(MediaEntity);
@@ -429,8 +430,8 @@ describe('DrawingsController Endpoints', () => {
     it('should throw error if drawing not found', async () => {
       await request(app.getHttpServer())
         .get(`/drawings/${wrongId}/download`)
+        .set('Authorization', `Bearer ${token}`)
         .query(validDownloadDrawingQuery)
-        .set('Authorization', `Bearer ${adminToken}`)
         .expect(404)
         .expect((res) => {
           expect(res.body.message).toEqual('Drawing not found!');

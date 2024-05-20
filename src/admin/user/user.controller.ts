@@ -9,8 +9,6 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { AdminUserService } from './user.service';
 import { UserUpdateDto } from './dto/updateUser.dto';
@@ -29,11 +27,12 @@ import {
 import { AdminUserEntity } from './entities/adminUser.entity';
 import { CreateAdminUserDto } from './dto/createUser.dto';
 import { GetUsersQuery } from './dto/getUsers.query';
-import { AdminAuthGuard } from '../../helpers/guards/adminAuth.guard';
+import { ADMIN_AUTH } from '../../helpers/common/decorators/adminAuth.decorator';
+
 
 @ApiTags('users')
 @ApiBearerAuth()
-@UseGuards(AdminAuthGuard)
+@ADMIN_AUTH()
 @Controller('/admin/users')
 export class AdminUserController {
   constructor(private readonly userService: AdminUserService) {}

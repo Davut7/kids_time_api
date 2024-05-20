@@ -3,14 +3,9 @@ import { MailsService } from './mails.service';
 import { MailsController } from './mails.controller';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
-import { TokenModule } from '../client/token/token.module';
-import { RedisModule } from '../redis/redis.module';
-
 
 @Module({
   imports: [
-    TokenModule,
-    RedisModule,
     MailerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({

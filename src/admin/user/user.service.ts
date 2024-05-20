@@ -7,11 +7,12 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserUpdateDto } from './dto/updateUser.dto';
-import { hash } from 'bcryptjs';
 import { CreateAdminUserDto } from './dto/createUser.dto';
 import { AdminUserEntity } from './entities/adminUser.entity';
 import { AdminTokenDto } from '../token/dto/token.dto';
 import { GetUsersQuery } from './dto/getUsers.query';
+import { generateHash } from '../../helpers/providers/generateHash';
+
 @Injectable()
 export class AdminUserService {
   constructor(
@@ -33,7 +34,7 @@ export class AdminUserService {
         `User with firstName ${dto.firstName} already exists!`,
       );
 
-    const hashedPassword = await hash(dto.password, 10);
+    const hashedPassword = await generateHash(dto.password);
     dto.password = hashedPassword;
     const user = this.userRepository.create(dto);
 
@@ -77,7 +78,7 @@ export class AdminUserService {
     const user = await this.findUserById(userId);
 
     if (userUpdateDto.password) {
-      const hashedPassword = await hash(userUpdateDto.password, 10);
+      const hashedPassword = await generateHash(userUpdateDto.password);
       userUpdateDto.password = hashedPassword;
     }
     user.firstName = userUpdateDto.firstName;

@@ -65,6 +65,7 @@ export class MinioService implements OnModuleInit {
   async uploadFileStream(
     fileName: string,
     fileStream: Readable,
+    fileSize: number,
     mimeType: string,
   ) {
     const metaData = {
@@ -74,6 +75,7 @@ export class MinioService implements OnModuleInit {
       this.bucketName,
       fileName,
       fileStream,
+      fileSize,
       metaData,
     );
     return uploadedFile;

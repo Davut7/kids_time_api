@@ -5,7 +5,6 @@ import { CreateLogDto, FindLogsFilter, LogsSortEnum } from './dto/logs.dto';
 import { LogsEntity } from './entity/log.entity';
 import { OrderType } from '../helpers/constants/orderEnum';
 
-
 @Injectable()
 export class LoggerService {
   constructor(
@@ -20,7 +19,12 @@ export class LoggerService {
   }
 
   async findAllLogs(query: FindLogsFilter) {
-    const { page = 1, take = 10, orderBy = LogsSortEnum.createdAt_ASC, order = OrderType.ASC } = query;
+    const {
+      page = 1,
+      take = 10,
+      orderBy = LogsSortEnum.createdAt_ASC,
+      order = OrderType.ASC,
+    } = query;
 
     const logsQuery = this.logsRepository
       .createQueryBuilder('logs')

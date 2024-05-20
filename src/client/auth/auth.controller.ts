@@ -34,6 +34,9 @@ import * as url from 'url';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../../redis/redis.service';
 import { GoogleAuthGuard } from '../../helpers/guards/googleAuth.guard';
+import { AuthGuard } from '../../helpers/guards/userAuth.guard';
+import { PUBLIC } from '../../helpers/common/decorators/isPublic.decorator';
+import { CLIENT_AUTH } from '../../helpers/common/decorators/clientAuth.decorator';
 
 @ApiTags('client/auth')
 @Controller('/auth')
@@ -63,6 +66,7 @@ export class AuthController {
     type: ConflictException,
     description: 'User with email already exists',
   })
+  @PUBLIC()
   @Post('registration')
   async register(@Body() registrationDto: UserRegistrationDto) {
     return this.authService.registerUser(registrationDto);
@@ -93,6 +97,7 @@ export class AuthController {
     type: BadRequestException,
     description: 'Verification code is expired',
   })
+  @PUBLIC()
   @Patch(':userId/verify')
   async verifyUser(
     @Body() dto: UserVerificationDto,
@@ -133,7 +138,8 @@ export class AuthController {
     type: NotFoundException,
     description: 'User with not found!',
   })
-  // @UseGuards(ThrottlerGuard)
+  @PUBLIC()
+  @UseGuards(ThrottlerGuard)
   @Post('login')
   async login(@Body() loginDto: UserLoginDto, @Res() res) {
     const user = await this.authService.loginUser(loginDto);
@@ -143,7 +149,9 @@ export class AuthController {
     });
     res.status(200).json({
       message: 'User login successfully',
-      user: user.user,
+      id: user.id,
+      nickName: user.nickName,
+      email: user.email,
       accessToken: user.accessToken,
       refreshToken: user.refreshToken,
     });
@@ -169,6 +177,7 @@ export class AuthController {
     type: UnauthorizedException,
     description: 'User unauthorized',
   })
+  @PUBLIC()
   @Get('refresh')
   async refresh(@Req() req, @Res() res) {
     const refreshToken = req.cookies['refreshToken'];
@@ -199,6 +208,7 @@ export class AuthController {
     type: UnauthorizedException,
     description: 'User unauthorized',
   })
+  @CLIENT_AUTH()
   @ApiBearerAuth()
   @Post('logout')
   async logout(@Req() req, @Res() res) {
@@ -214,8 +224,9 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Resend verification code' })
-  // @Throttle({ default: { limit: 1, ttl: 1000 * 60 * 2 } })
-  // @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 1, ttl: 1000 * 60 * 2 } })
+  @UseGuards(ThrottlerGuard)
+  @PUBLIC()
   @Post(':userId/resend-code')
   async resendVerificationCode(@Param('userId') userId: string) {
     return this.authService.sendVerificationCode(userId);

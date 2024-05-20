@@ -8,17 +8,17 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import * as cookieParser from 'cookie-parser';
 import { UserRegistrationDto } from '../../src/client/auth/dto/userRegistration.dto';
 import { UserEntity } from '../../src/client/user/entities/user.entity';
-import { UserLoginDto } from 'src/client/auth/dto/userLogin.dto';
+import { UserLoginDto } from '../../src/client/auth/dto/userLogin.dto';
 import { UserVerificationDto } from '../../src/client/auth/dto/userVerification.dto';
 import * as jwt from 'jsonwebtoken';
 import { UserTokenDto } from '../../src/client/token/dto/token.dto';
-import { hash } from 'bcryptjs';
 import { generateRandomSixDigitNumber } from '../../src/helpers/providers/generateVerificationCode';
 import { AuthModule } from '../../src/client/auth/auth.module';
 import { AuthService } from '../../src/client/auth/auth.service';
 import { TokenModule } from '../../src/client/token/token.module';
 import { MailsModule } from '../../src/mails/mails.module';
 import { UserModule } from '../../src/client/user/user.module';
+import { generateHash } from '../../src/helpers/providers/generateHash';
 
 describe('ClientAuthController (e2e)', () => {
   let app: INestApplication;
@@ -298,7 +298,7 @@ describe('ClientAuthController (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(401)
         .expect((res) => {
-          expect(res.body.message).toBe('Refresh token not provided');
+          expect(res.body.message).toBe('User unauthorized');
         });
     });
 
@@ -354,7 +354,7 @@ async function createUser(
     password: dto.password,
     email: dto.email,
   });
-  const hashedPassword = await hash(user.password, 10);
+  const hashedPassword = await generateHash(user.password);
   user.password = hashedPassword;
   await userRepository.save(user);
   let verificationCode = generateRandomSixDigitNumber();

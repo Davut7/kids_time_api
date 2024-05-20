@@ -13,7 +13,6 @@ import {
   Query,
   Res,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import {
@@ -42,12 +41,13 @@ import { UploadDrawingsDto } from './dto/uploadDrawings.dto';
 import { DrawingsAttributesEntity } from './entities/drawingsAttributes.entity';
 import { CreateDrawingsAttributeDto } from './dto/createDrawingAttribute.dto';
 import { DownloadDrawingsQuery } from './dto/downloadDrawing.query';
-import { AdminAuthGuard } from '../helpers/guards/adminAuth.guard';
-import { UserAuthGuard } from '../helpers/guards/userAuth.guard';
 import { CurrentUser } from '../helpers/common/decorators/currentUser.decorator';
 import { UserTokenDto } from '../client/token/dto/token.dto';
 import { PdfTransformer } from '../helpers/pipes/booksTransform.pipe';
 import { ITransformedFile } from '../helpers/common/interfaces/fileTransform.interface';
+import { ADMIN_AUTH } from '../helpers/common/decorators/adminAuth.decorator';
+import { PUBLIC } from '../helpers/common/decorators/isPublic.decorator';
+import { CLIENT_AUTH } from '../helpers/common/decorators/clientAuth.decorator';
 
 @ApiTags('drawings')
 @ApiBearerAuth()
@@ -70,7 +70,7 @@ export class DrawingsController {
     type: ConflictException,
     description: 'Drawing with this title already exists!',
   })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Post(':categoryId')
   async createDrawing(
     @Body() dto: CreateDrawingDto,
@@ -90,6 +90,7 @@ export class DrawingsController {
       },
     },
   })
+  @CLIENT_AUTH()
   @Get()
   async getDrawings(@Query() query: GetDrawingsQuery) {
     return this.drawingsService.getDrawings(query);
@@ -105,7 +106,7 @@ export class DrawingsController {
     description: 'Drawing not found!',
   })
   @ApiParam({ name: 'drawingId', description: 'drawing id' })
-  @UseGuards(UserAuthGuard)
+  @PUBLIC()
   @Get('/:drawingId')
   async getOneDrawing(
     @Param('drawingId') drawingsId: string,
@@ -130,7 +131,7 @@ export class DrawingsController {
     description: 'Drawing not found!',
   })
   @ApiParam({ name: 'drawingId', description: 'drawing id' })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Patch('/:drawingId')
   async updateDrawings(
     @Param('drawingId') drawingId: string,
@@ -154,7 +155,7 @@ export class DrawingsController {
     description: 'Drawing not found!',
   })
   @ApiParam({ name: 'drawingId', description: 'drawing id' })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Delete('/:drawingId')
   async deleteDrawings(@Param('drawingId') drawingId: string) {
     return this.drawingsService.deleteDrawing(drawingId);
@@ -170,7 +171,7 @@ export class DrawingsController {
     description: 'Error while uploading drawing',
   })
   @ApiConsumes('multipart/form-data')
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Post('/medias/:drawingId')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -215,7 +216,7 @@ export class DrawingsController {
     description: 'Error while uploading drawings',
     type: InternalServerErrorException,
   })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Delete('/:drawingId/media/:mediaId')
   async deleteDrawingsMedia(
     @Param('drawingId', ParseUUIDPipe) drawingId: string,
@@ -244,7 +245,7 @@ export class DrawingsController {
   @ApiBadRequestResponse({
     description: 'Drawings attribute with this language already exists!',
   })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Post('/attributes/:drawingId')
   async createAttribute(
     @Body() dto: CreateDrawingsAttributeDto,
@@ -270,7 +271,7 @@ export class DrawingsController {
   @ApiNotFoundResponse({
     description: 'Attribute not found!',
   })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Patch('/:drawingId/attributes/:attributeId')
   async updateAttribute(
     @Param('drawingId') drawingId: string,
@@ -287,7 +288,7 @@ export class DrawingsController {
   @ApiNotFoundResponse({
     description: 'Attribute not found!',
   })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Delete('/:drawingId/attributes/:attributeId')
   async deleteAttribute(
     @Param('drawingId') drawingId: string,
@@ -305,6 +306,7 @@ export class DrawingsController {
     type: NotFoundException,
     description: 'Drawing not found!',
   })
+  @CLIENT_AUTH()
   @Get('/:drawingId/download')
   async downloadDrawing(
     @Param('drawingId') drawingId: string,

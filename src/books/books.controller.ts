@@ -13,7 +13,6 @@ import {
   Query,
   Res,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import {
@@ -42,12 +41,13 @@ import { CreateBookAttributeDto } from './dto/createBookAttribute.dto';
 import { UpdateBookAttributeDto } from './dto/updateBookAttribute.dto';
 import { UploadBookDto } from './dto/uploadBook.dto';
 import { DownloadBookQuery } from './dto/downloadBook.query';
-import { AdminAuthGuard } from '../helpers/guards/adminAuth.guard';
-import { UserAuthGuard } from '../helpers/guards/userAuth.guard';
 import { PdfTransformer } from '../helpers/pipes/booksTransform.pipe';
 import { ITransformedFile } from '../helpers/common/interfaces/fileTransform.interface';
 import { UserTokenDto } from '../client/token/dto/token.dto';
 import { CurrentUser } from '../helpers/common/decorators/currentUser.decorator';
+import { ADMIN_AUTH } from '../helpers/common/decorators/adminAuth.decorator';
+import { PUBLIC } from '../helpers/common/decorators/isPublic.decorator';
+import { CLIENT_AUTH } from '../helpers/common/decorators/clientAuth.decorator';
 
 @ApiTags('books')
 @ApiBearerAuth()
@@ -70,7 +70,7 @@ export class BooksController {
     type: NotFoundException,
     description: 'Category not found!',
   })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Post(':categoryId')
   async createBooks(
     @Body() dto: CreateBookDto,
@@ -91,6 +91,7 @@ export class BooksController {
     },
   })
   @Get()
+  @PUBLIC()
   async getBooks(@Query() query: GetBooksQuery) {
     return this.booksService.getBooks(query);
   }
@@ -104,7 +105,7 @@ export class BooksController {
     type: NotFoundException,
     description: 'Book not found!',
   })
-  @UseGuards(UserAuthGuard)
+  @CLIENT_AUTH()
   @ApiParam({ name: 'bookId', description: 'Book id' })
   @Get('/:bookId')
   async getOneBooks(
@@ -130,7 +131,7 @@ export class BooksController {
     description: 'Book not found!',
   })
   @ApiParam({ name: 'bookId', description: 'Book id' })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Patch('/:bookId')
   async updateBooks(
     @Param('bookId') bookId: string,
@@ -154,7 +155,7 @@ export class BooksController {
     description: 'Book not found!',
   })
   @ApiParam({ name: 'bookId', description: 'Book id' })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Delete('/:bookId')
   async deleteBooks(@Param('bookId') bookId: string) {
     return this.booksService.deleteBook(bookId);
@@ -168,7 +169,7 @@ export class BooksController {
   })
   @ApiInternalServerErrorResponse({ description: 'Error while uploading book' })
   @ApiConsumes('multipart/form-data')
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Post('/medias/:bookId')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -212,7 +213,7 @@ export class BooksController {
     description: 'Error while uploading books',
     type: InternalServerErrorException,
   })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Delete('/:bookId/media/:mediaId')
   async deleteBooksMedia(
     @Param('bookId', ParseUUIDPipe) bookId: string,
@@ -242,7 +243,7 @@ export class BooksController {
     type: ConflictException,
     description: 'Book attribute with this language already exists!',
   })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Post('/attributes/:bookId')
   async createAttribute(
     @Body() dto: CreateBookAttributeDto,
@@ -268,7 +269,7 @@ export class BooksController {
   @ApiNotFoundResponse({
     description: 'Attribute not found!',
   })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Patch('/:bookId/attributes/:attributeId')
   async updateAttribute(
     @Param('bookId') bookId: string,
@@ -281,7 +282,7 @@ export class BooksController {
   @ApiOperation({ summary: 'Delete a book attribute.' })
   @ApiOkResponse({ description: 'Book attribute deleted successfully.' })
   @ApiNotFoundResponse({ description: 'Attribute not found!' })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Delete('/:bookId/attributes/:attributeId')
   async deleteAttribute(
     @Param('bookId') bookId: string,
@@ -299,6 +300,7 @@ export class BooksController {
     type: NotFoundException,
     description: 'Book not found!',
   })
+  @CLIENT_AUTH()
   @Get('/:bookId/download')
   async downloadBook(
     @Param('bookId') bookId: string,

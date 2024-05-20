@@ -185,7 +185,7 @@ export class BooksService {
       await this.mediaService.deleteOneMedia(mediaId, queryRunner);
       await queryRunner.commitTransaction();
       return {
-        message: 'Book deleted successfully.',
+        message: 'Book media deleted successfully.',
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -196,6 +196,7 @@ export class BooksService {
   }
 
   async createAttribute(dto: CreateBookAttributeDto, bookId: string) {
+    await this.findBookById(bookId);
     await this.isAttributeUnique(dto.language, bookId);
     const attribute = this.booksAttributesRepository.create({
       ...dto,

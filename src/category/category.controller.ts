@@ -5,7 +5,6 @@ import {
   Delete,
   Param,
   Query,
-  UseGuards,
   Patch,
   UploadedFile,
   UseInterceptors,
@@ -38,10 +37,12 @@ import { GetCategoriesQuery } from './dto/getCategories.dto';
 import { CreateCategoryAttributeDto } from './dto/createCategoryAttribute.dto';
 import { CategoryAttributesEntity } from './entities/categoryAttributes.entity';
 import { UpdateCategoryAttributeDto } from './dto/updateCategoryAttribute.dto';
-import { AdminAuthGuard } from '../helpers/guards/adminAuth.guard';
 import { ImageTransformer } from '../helpers/pipes/imageTransform.pipe';
 import { ITransformedFile } from '../helpers/common/interfaces/fileTransform.interface';
 import { imageFilter } from '../helpers/filters/imageFilter';
+import { ADMIN_AUTH } from '../helpers/common/decorators/adminAuth.decorator';
+import { PUBLIC } from '../helpers/common/decorators/isPublic.decorator';
+
 
 @ApiTags('category')
 @ApiBearerAuth()
@@ -63,7 +64,7 @@ export class CategoryController {
       },
     },
   })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Post('')
   async createCategory(@Body() dto: CreateCategoryDto) {
     return this.categoryService.createCategory(dto);
@@ -83,6 +84,7 @@ export class CategoryController {
       },
     },
   })
+  @PUBLIC()
   @Get()
   async getCategories(@Query() query: GetCategoriesQuery) {
     return this.categoryService.getCategories(query);
@@ -101,6 +103,7 @@ export class CategoryController {
     description: 'Category not found!',
   })
   @ApiParam({ name: 'categoryId', description: 'Category id' })
+  @PUBLIC()
   @Get('/:categoryId')
   async getOneCategory(@Param('categoryId') categoryId: string) {
     return await this.categoryService.getOneCategory(categoryId);
@@ -125,7 +128,7 @@ export class CategoryController {
     description: 'Category not found!',
   })
   @ApiParam({ name: 'id', description: 'Category id' })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Patch('/:categoryId')
   async updateCategory(
     @Param('categoryId') categoryId: string,
@@ -152,7 +155,7 @@ export class CategoryController {
     description: 'Category not found!',
   })
   @ApiParam({ name: 'categoryId', description: 'Category id' })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Delete('/:categoryId')
   async deleteCategory(@Param('categoryId') categoryId: string) {
     return this.categoryService.deleteCategory(categoryId);
@@ -171,7 +174,7 @@ export class CategoryController {
     description: 'Error while uploading category image!',
   })
   @ApiConsumes('multipart/form-data')
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Post('/images/:categoryId')
   @UseInterceptors(
     FileInterceptor('image', {
@@ -218,7 +221,7 @@ export class CategoryController {
     description: 'Error while uploading category image',
     type: InternalServerErrorException,
   })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Delete('/:categoryId/image/:imageId')
   async deleteCategoryImage(
     @Param('categoryId', ParseUUIDPipe) categoryId: string,
@@ -250,7 +253,7 @@ export class CategoryController {
   @ApiBadRequestResponse({
     description: 'Category attribute with this language already exists!',
   })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Post('/attributes/:categoryId')
   async createAttribute(
     @Body() dto: CreateCategoryAttributeDto,
@@ -279,7 +282,7 @@ export class CategoryController {
   @ApiNotFoundResponse({
     description: 'Attribute not found!',
   })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Patch('/:categoryId/attributes/:attributeId')
   async updateAttribute(
     @Param('categoryId') categoryId: string,
@@ -299,7 +302,7 @@ export class CategoryController {
   @ApiNotFoundResponse({
     description: 'Attribute not found!',
   })
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Delete('/:categoryId/attributes/:attributeId')
   async deleteAttribute(
     @Param('categoryId') categoryId: string,

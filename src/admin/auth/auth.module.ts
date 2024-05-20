@@ -7,7 +7,6 @@ import { AdminTokenEntity } from '../token/entities/token.entity';
 import { AdminTokenModule } from '../token/token.module';
 import { RedisModule } from '../../redis/redis.module';
 
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([AdminUserEntity, AdminTokenEntity]),

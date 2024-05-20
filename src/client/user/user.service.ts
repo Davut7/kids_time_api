@@ -7,7 +7,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, QueryRunner } from 'typeorm';
 import { UserUpdateDto } from './dto/updateUser.dto';
-import { hash } from 'bcryptjs';
 import { UserEntity } from './entities/user.entity';
 import { UserTokenDto } from '../token/dto/token.dto';
 import { AddExpDto } from './dto/addExp.dto';
@@ -17,6 +16,8 @@ import { MediaService } from '../../media/media.service';
 import { BooksReadEntity } from './entities/booksRead.entity';
 import { BooksEntity } from '../../books/entities/books.entity';
 import { GetReadBooksDto } from './dto/getReadBooks.dto';
+import { generateHash } from '../../helpers/providers/generateHash';
+
 
 @Injectable()
 export class UserService {
@@ -43,7 +44,7 @@ export class UserService {
   async updateUser(currentUser: UserTokenDto, userUpdateDto: UserUpdateDto) {
     const user = await this.findUserById(currentUser.id);
     if (userUpdateDto.password) {
-      const hashedPassword = await hash(userUpdateDto.password, 10);
+      const hashedPassword = await generateHash(userUpdateDto.password);
       userUpdateDto.password = hashedPassword;
     }
     Object.assign(user, userUpdateDto);

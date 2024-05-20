@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Param,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Query } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -17,13 +9,13 @@ import {
 } from '@nestjs/swagger';
 import { FavoritesService } from './favorites.service';
 import { GetFavoritesQuery } from './dto/getFavorites.query';
-import { UserAuthGuard } from '../helpers/guards/userAuth.guard';
 import { UserTokenDto } from '../client/token/dto/token.dto';
 import { CurrentUser } from '../helpers/common/decorators/currentUser.decorator';
+import { CLIENT_AUTH } from '../helpers/common/decorators/clientAuth.decorator';
 
 @ApiTags('favorites')
 @ApiBearerAuth()
-@UseGuards(UserAuthGuard)
+@CLIENT_AUTH()
 @Controller('favorites')
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}

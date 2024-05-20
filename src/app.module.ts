@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module, OnModuleInit } from '@nestjs/common';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AllExceptionsFilter } from './utils/core/allException.filter';
 import { LogsMiddleware } from './logger/middleware/logs.middleware';
 import DatabaseLogger from './logger/helpers/databaseLogger';
@@ -23,15 +23,16 @@ import { BooksModule } from './books/books.module';
 import { MinioModule } from './minio/minio.module';
 import { DrawingsModule } from './drawings/drawings.module';
 import { FavoritesModule } from './favorites/favorites.module';
-// import { validate } from './config/env.validation';
-import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
-import * as redisStore from 'cache-manager-redis-store';
+import { validate } from './config/env.validation';
+import { CacheModule } from '@nestjs/cache-manager';
+import { RedisClientOptions } from 'redis';
+import { AuthGuard } from './helpers/guards/userAuth.guard';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: `.${process.env.NODE_ENV}.env`,
-      // validate,
+      validate,
       isGlobal: true,
       cache: true,
     }),
@@ -52,10 +53,10 @@ import * as redisStore from 'cache-manager-redis-store';
         logger: new DatabaseLogger(),
       }),
     }),
-    CacheModule.registerAsync({
+    CacheModule.registerAsync<RedisClientOptions>({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        store: redisStore,
+        store: 'redis',
         ttl: 60,
         host: configService.getOrThrow<string>('REDIS_HOST'),
         port: configService.getOrThrow<number>('REDIS_PORT'),
@@ -86,6 +87,10 @@ import * as redisStore from 'cache-manager-redis-store';
     {
       provide: APP_FILTER,
       useClass: AllExceptionsFilter,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
     },
   ],
 })

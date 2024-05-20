@@ -9,15 +9,37 @@ import * as Sentry from '@sentry/node';
 import CustomLogger from './logger/helpers/customLogger';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { TimeoutInterceptor } from './helpers/interceptors/timeout.interceptor';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  const port = process.env.PORT;
   const app = await NestFactory.create(AppModule, {
     logger:
       process.env.NODE_ENV === 'production'
         ? ['error']
         : ['log', 'debug', 'error', 'warn'],
   });
+  const configService = app.get(ConfigService);
+
+  const port = configService.getOrThrow<'number'>('PORT');
+
+  Sentry.init({
+    dsn: configService.getOrThrow<'string'>('SENTRY_URI'),
+    integrations: [
+      new Sentry.Integrations.Http({ tracing: true }),
+
+      new Sentry.Integrations.Express(),
+      nodeProfilingIntegration(),
+    ],
+
+    tracesSampleRate: 1.0,
+
+    profilesSampleRate: 1.0,
+  });
+
+  app.use(Sentry.Handlers.requestHandler());
+
+  app.use(Sentry.Handlers.tracingHandler());
 
   const config = new DocumentBuilder()
     .setTitle('Kids time server')
@@ -39,11 +61,13 @@ async function bootstrap() {
     credentials: true,
     origin: '*',
   });
-  app.use(cookieParser(`${process.env.COOKIE_SECRET}`));
+  app.use(
+    cookieParser(`${configService.getOrThrow<'string'>('COOKIE_SECRET')}`),
+  );
   app.use(compression());
   app.useGlobalPipes(new ValidationPipe());
   Sentry.init({
-    dsn: process.env.SENTRY_DNS,
+    dsn: configService.getOrThrow<'string'>('SENTRY_DNS'),
   });
   app.useGlobalInterceptors(
     new TimeoutInterceptor(),
@@ -55,6 +79,7 @@ async function bootstrap() {
   });
 
   app.useLogger(app.get(CustomLogger, { strict: false }));
+  app.use(Sentry.Handlers.tracingHandler());
 }
 
 bootstrap();

@@ -55,7 +55,7 @@ describe('BooksController Endpoints', () => {
 
   let createCategoryDto: CreateCategoryDto = {
     title: 'Books category',
-    categoryType: CategoryTypeEnum.book,
+    categoryType: CategoryTypeEnum.books,
   };
 
   let createBookDto: CreateBookDto = {
@@ -322,7 +322,7 @@ describe('BooksController Endpoints', () => {
   describe('Delete Book Image DELETE /books/:booksId/image/:imageId', () => {
     it('should delete book media', () => {
       return request(app.getHttpServer())
-        .post(`/books/${book.id}/medias/${book.id}`)
+        .post(`/books/${book.id}/medias/${media.id}`)
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(200)
         .expect((res) => {

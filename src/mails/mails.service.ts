@@ -1,17 +1,21 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { CreateMailDto } from './dto/createMail.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MailsService {
-  constructor(private readonly mailerService: MailerService) {}
+  constructor(
+    private readonly mailerService: MailerService,
+    private configService: ConfigService,
+  ) {}
 
   async sendMail(dto: CreateMailDto) {
     if (process.env.NODE_ENV === 'development')
       return { message: 'Mail send successfully!' };
     await this.mailerService.sendMail({
-      to: process.env.SMTP_USER,
-      from: dto.email,
+      to: dto.email,
+      from: this.configService.getOrThrow('SMTP_USER'),
       subject: 'Request information',
       html: `
         <div>
@@ -30,8 +34,8 @@ export class MailsService {
       if (process.env.NODE_ENV === 'development')
         return { message: 'Verification code send successfully!' };
       await this.mailerService.sendMail({
-        to: process.env.SMTP_USER,
-        from: email,
+        to: email,
+        from: this.configService.getOrThrow('SMTP_USER'),
         subject: 'Verification code',
         html: `
         <div>

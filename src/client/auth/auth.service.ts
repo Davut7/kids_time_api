@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { compare, hash } from 'bcryptjs';
 import { UserEntity } from '../user/entities/user.entity';
 import { TokenService } from '../token/token.service';
 import { UserLoginDto } from './dto/userLogin.dto';
@@ -17,6 +16,7 @@ import { UserVerificationDto } from './dto/userVerification.dto';
 import { UserService } from '../user/user.service';
 import { MailsService } from '../../mails/mails.service';
 import { generateRandomSixDigitNumber } from '../../helpers/providers/generateVerificationCode';
+import { generateHash, verifyHash } from '../../helpers/providers/generateHash';
 
 @Injectable()
 export class AuthService {
@@ -36,7 +36,7 @@ export class AuthService {
       throw new ConflictException(
         `User with email ${dto.email} already exists`,
       );
-    const hashedPassword = await hash(dto.password, 10);
+    const hashedPassword = await generateHash(dto.password);
     const user = this.userRepository.create({
       ...dto,
       password: hashedPassword,
@@ -48,12 +48,14 @@ export class AuthService {
     return {
       message:
         'User registration successfully. Verification code sent to your email',
-      user,
+      id: user.id,
+      nickName: user.nickName,
+      email: user.email,
     };
   }
   async loginUser(dto: UserLoginDto) {
     const user = await this.userService.findOneByEmail(dto.email);
-    const isPasswordValid = await compare(dto.password, user.password);
+    const isPasswordValid = await verifyHash(dto.password, user.password);
     if (!isPasswordValid)
       throw new BadRequestException(`User password incorrect!`);
 
@@ -64,7 +66,9 @@ export class AuthService {
 
     return {
       message: 'User login successfully!',
-      user,
+      id: user.id,
+      nickName: user.nickName,
+      email: user.email,
       ...tokens,
     };
   }

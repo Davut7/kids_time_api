@@ -23,10 +23,11 @@ import {
   ApiUnauthorizedResponse,
   getSchemaPath,
 } from '@nestjs/swagger';
-
 import { AdminUserEntity } from '../user/entities/adminUser.entity';
 import { RedisService } from '../../redis/redis.service';
-import { AdminAuthGuard } from '../../helpers/guards/adminAuth.guard';
+import { PUBLIC } from '../../helpers/common/decorators/isPublic.decorator';
+import { ADMIN_AUTH } from '../../helpers/common/decorators/adminAuth.decorator';
+
 
 @ApiTags('auth')
 @Controller('/admin/auth')
@@ -58,6 +59,7 @@ export class AdminAuthController {
     type: NotFoundException,
     description: 'User not found!',
   })
+  @PUBLIC()
   @Post('login')
   async login(@Body() loginDto: AdminLoginDto, @Res() res) {
     const { user, accessToken, refreshToken, message } =
@@ -95,6 +97,7 @@ export class AdminAuthController {
     type: UnauthorizedException,
     description: 'User unauthorized',
   })
+  @PUBLIC()
   @Get('refresh')
   async refresh(@Req() req, @Res() res) {
     const refreshToken = req.cookies['refreshToken'];
@@ -124,7 +127,7 @@ export class AdminAuthController {
     description: 'User unauthorized',
   })
   @ApiBearerAuth()
-  @UseGuards(AdminAuthGuard)
+  @ADMIN_AUTH()
   @Post('logout')
   async logout(@Req() req, @Res() res) {
     const refreshToken = req.cookies['refreshToken'];

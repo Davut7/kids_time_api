@@ -31,15 +31,15 @@ import { AddExpDto } from './dto/addExp.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { randomUUID } from 'crypto';
-import { UserAuthGuard } from '../../helpers/guards/userAuth.guard';
 import { ImageTransformer } from '../../helpers/pipes/imageTransform.pipe';
 import { imageFilter } from '../../helpers/filters/imageFilter';
 import { ITransformedFile } from '../../helpers/common/interfaces/fileTransform.interface';
 import { GetReadBooksDto } from './dto/getReadBooks.dto';
+import { CLIENT_AUTH } from '../../helpers/common/decorators/clientAuth.decorator';
 
 @ApiTags('client-users')
 @ApiBearerAuth()
-@UseGuards(UserAuthGuard)
+@CLIENT_AUTH()
 @Controller('/users')
 export class UserController {
   constructor(private readonly userService: UserService) {}

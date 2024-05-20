@@ -30,7 +30,7 @@ describe('CategoryController Endpoints', () => {
 
   let createCategoryDto: CreateCategoryDto = {
     title: 'Books category',
-    categoryType: CategoryTypeEnum.book,
+    categoryType: CategoryTypeEnum.books,
   };
 
   let createCategoryAttributeDtoMethod: CreateCategoryAttributeDto = {

@@ -11,7 +11,7 @@ import { CreateAdminUserDto } from '../../src/admin/user/dto/createUser.dto';
 import * as cookieParser from 'cookie-parser';
 import * as jwt from 'jsonwebtoken';
 import { AdminTokenDto } from '../../src/admin/token/dto/token.dto';
-import { hash } from 'bcryptjs';
+import { generateHash } from '../../src/helpers/providers/generateHash';
 
 describe('AdminAuthController (e2e)', () => {
   let app: INestApplication;
@@ -175,7 +175,7 @@ async function createAdminUser(
   userRepository: Repository<AdminUserEntity>,
 ) {
   const user = userRepository.create(dto);
-  const hashedPassword = await hash(user.password, 10);
+  const hashedPassword = await generateHash(user.password);
   user.password = hashedPassword;
   await userRepository.save(user);
 

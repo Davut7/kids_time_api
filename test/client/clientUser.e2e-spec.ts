@@ -50,7 +50,7 @@ describe('ClientUserController (e2e)', () => {
 
   let createCategoryDto: CreateCategoryDto = {
     title: '1234',
-    categoryType: CategoryTypeEnum.book,
+    categoryType: CategoryTypeEnum.books,
   };
 
   let userExpDto: AddExpDto = {

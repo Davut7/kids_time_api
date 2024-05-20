@@ -6,10 +6,6 @@ import { MediaModule } from '../media/media.module';
 import { BooksEntity } from './entities/books.entity';
 import { BooksAttributesEntity } from './entities/booksAttributes.entity';
 import { CategoryEntity } from '../category/entities/category.entity';
-import { RedisModule } from '../redis/redis.module';
-import { AdminTokenModule } from '../admin/token/token.module';
-import { TokenModule } from '../client/token/token.module';
-
 
 @Module({
   imports: [
@@ -18,10 +14,7 @@ import { TokenModule } from '../client/token/token.module';
       BooksAttributesEntity,
       CategoryEntity,
     ]),
-    RedisModule,
     MediaModule,
-    AdminTokenModule,
-    TokenModule,
   ],
   controllers: [BooksController],
   providers: [BooksService],

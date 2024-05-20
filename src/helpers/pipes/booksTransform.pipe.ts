@@ -21,6 +21,7 @@ export class PdfTransformer implements PipeTransform<Express.Multer.File> {
       await this.minioService.uploadFileStream(
         file.filename,
         uploadStream,
+        file.size,
         file.mimetype,
       );
 

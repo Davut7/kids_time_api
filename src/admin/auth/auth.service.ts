@@ -10,7 +10,8 @@ import { Repository } from 'typeorm';
 import { AdminTokenService } from '../token/token.service';
 import { AdminTokenDto } from '../token/dto/token.dto';
 import { AdminLoginDto } from './dto/userLogin.dto';
-import { compare } from 'bcryptjs';
+import { verifyHash } from '../../helpers/providers/generateHash';
+
 @Injectable()
 export class AdminAuthService {
   constructor(
@@ -29,7 +30,7 @@ export class AdminAuthService {
         `User with first name ${dto.firstName} not found!`,
       );
 
-    const isPasswordValid = await compare(dto.password, user.password);
+    const isPasswordValid = await verifyHash(dto.password, user.password);
 
     if (!isPasswordValid)
       throw new BadRequestException('User password incorrect!');

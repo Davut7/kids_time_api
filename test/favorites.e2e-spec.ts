@@ -55,7 +55,7 @@ describe('FavoritesController Endpoints', () => {
 
   let createCategoryDto: CreateCategoryDto = {
     title: 'Books category',
-    categoryType: CategoryTypeEnum.book,
+    categoryType: CategoryTypeEnum.books,
   };
 
   let createBookDto: CreateBookDto = {
