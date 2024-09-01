@@ -8,7 +8,6 @@ import {
   Req,
   Res,
   UnauthorizedException,
-  UseGuards,
 } from '@nestjs/common';
 import { AdminAuthService } from './auth.service';
 import { AdminLoginDto } from './dto/userLogin.dto';
@@ -27,7 +26,6 @@ import { AdminUserEntity } from '../user/entities/adminUser.entity';
 import { RedisService } from '../../redis/redis.service';
 import { PUBLIC } from '../../helpers/common/decorators/isPublic.decorator';
 import { ADMIN_AUTH } from '../../helpers/common/decorators/adminAuth.decorator';
-
 
 @ApiTags('auth')
 @Controller('/admin/auth')
